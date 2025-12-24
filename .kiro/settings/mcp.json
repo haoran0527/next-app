@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "ssh-tool": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-ssh-tool"
+      ],
+      "disabled": true,
+      "autoApprove": [
+        "ssh_openSession",
+        "ssh_closeSession",
+        "proc_exec",
+        "proc_sudo",
+        "fs_read",
+        "fs_write",
+        "fs_list",
+        "fs_stat",
+        "fs_mkdirp",
+        "fs_rmrf",
+        "fs_rename",
+        "ensure_package",
+        "ensure_service",
+        "ensure_linesInFile",
+        "patch_apply",
+        "os_detect"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {
+        "DEFAULT_MINIMUM_TOKENS": "10000"
+      }
+    }
+  }
+}
