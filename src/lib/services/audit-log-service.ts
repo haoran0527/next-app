@@ -10,7 +10,7 @@ export interface AuditLogEntry {
   id: string
   adminId: string
   action: string
-  targetId?: string
+  targetId?: string | null
   details?: any
   createdAt: Date
 }

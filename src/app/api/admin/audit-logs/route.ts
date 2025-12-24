@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { protectAdminApi } from '@/lib/middleware/api-protection'
 import { User } from '@/lib/types/auth'
-import { getAuditLogs, cleanupOldAuditLogs } from '@/lib/services/audit-log-service'
+import { getAuditLogs, cleanupOldAuditLogs, AuditLogFilters } from '@/lib/services/audit-log-service'
 
 /**
  * 获取审计日志列表（管理员专用）
@@ -15,7 +15,7 @@ async function handleGetAuditLogs(
     const { searchParams } = new URL(request.url)
     
     // 解析查询参数
-    const filters = {
+    const filters: AuditLogFilters = {
       adminId: searchParams.get('adminId') || undefined,
       action: searchParams.get('action') || undefined,
       targetId: searchParams.get('targetId') || undefined,

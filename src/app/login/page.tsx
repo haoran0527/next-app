@@ -6,6 +6,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
+// 获取 API 基础路径
+const getApiBasePath = () => {
+  // 在客户端，从当前 URL 推断 basePath
+  if (typeof window !== 'undefined') {
+    const pathname = window.location.pathname
+    // 如果路径以 /note 开头，则使用 /note 作为 basePath
+    if (pathname.startsWith('/note')) {
+      return '/note'
+    }
+  }
+  return ''
+}
+
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
@@ -43,7 +56,8 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const basePath = getApiBasePath()
+      const response = await fetch(`${basePath}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +190,7 @@ export default function LoginPage() {
 
             <div className="text-center text-sm text-gray-600 bg-white/40 p-3 rounded-lg">
               还没有账户？{' '}
-              <a href="/register" className="text-blue-600 hover:text-blue-800 hover:underline font-semibold">
+              <a href="/note/register" className="text-blue-600 hover:text-blue-800 hover:underline font-semibold">
                 立即注册
               </a>
             </div>

@@ -94,14 +94,27 @@ async function handleGetUserStats(
     }
 
     // 构建仪表板摘要
-    const summary = {
+    const summary: {
+      currentBalance: number
+      monthlyIncome: number
+      monthlyExpense: number
+      monthlyTransactionCount: number
+      topIncomeCategory: { category: string; amount: number } | null
+      topExpenseCategory: { category: string; amount: number } | null
+      recentTransactionTrend: 'stable' | 'up' | 'down'
+      comparedToLastMonth: {
+        incomeChange: number
+        expenseChange: number
+        balanceChange: number
+      }
+    } = {
       currentBalance: statsResult.data.balance,
       monthlyIncome: monthlyStats[0]?.totalIncome || 0,
       monthlyExpense: monthlyStats[0]?.totalExpense || 0,
       monthlyTransactionCount: monthlyStats[0]?.transactionCount || 0,
       topIncomeCategory: null,
       topExpenseCategory: null,
-      recentTransactionTrend: 'stable' as const,
+      recentTransactionTrend: 'stable',
       comparedToLastMonth: {
         incomeChange: 0,
         expenseChange: 0,

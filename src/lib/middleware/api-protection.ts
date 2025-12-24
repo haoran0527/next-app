@@ -11,7 +11,7 @@ export interface ApiProtectionConfig {
   // 需要的角色
   requiredRole?: 'USER' | 'ADMIN'
   // 资源类型
-  resourceType?: 'transaction' | 'user' | 'session'
+  resourceType?: 'transaction' | 'user' | 'session' | 'system'
   // 操作类型
   action?: 'create' | 'read' | 'update' | 'delete' | 'admin'
   // 是否启用数据隔离
@@ -45,6 +45,8 @@ export function protectApiRoute(
 
   // 如果需要数据隔离，使用安全访问中间件
   if (enableDataIsolation) {
+    // 将 'system' 类型映射为 'transaction'，因为 withSecureAccess 不支持 'system'
+    const safeResourceType = resourceType === 'system' ? 'transaction' : resourceType
     return withSecureAccess(
       async (request: NextRequest, user: User, secureDataAccess: any) => {
         // 执行自定义权限检查
@@ -61,7 +63,7 @@ export function protectApiRoute(
         return handler(request, user, secureDataAccess)
       },
       {
-        resourceType,
+        resourceType: safeResourceType,
         action,
         resource: resourceType
       }
@@ -103,12 +105,15 @@ export function protectTransactionApi(
   handler: (request: NextRequest, user: User, secureDataAccess: any) => Promise<NextResponse>,
   action: 'create' | 'read' | 'update' | 'delete' = 'read'
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    resourceType: 'transaction',
-    action,
-    enableDataIsolation: true
-  })
+  return protectApiRoute(
+    (request: NextRequest, user?: User, secureDataAccess?: any) => handler(request, user!, secureDataAccess),
+    {
+      requireAuth: true,
+      resourceType: 'transaction',
+      action,
+      enableDataIsolation: true
+    }
+  )
 }
 
 /**
@@ -118,12 +123,15 @@ export function protectUserApi(
   handler: (request: NextRequest, user: User, secureDataAccess?: any) => Promise<NextResponse>,
   action: 'create' | 'read' | 'update' | 'delete' = 'read'
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    resourceType: 'user',
-    action,
-    enableDataIsolation: action !== 'create' // 创建用户时不需要数据隔离
-  })
+  return protectApiRoute(
+    (request: NextRequest, user?: User, secureDataAccess?: any) => handler(request, user!, secureDataAccess),
+    {
+      requireAuth: true,
+      resourceType: 'user',
+      action,
+      enableDataIsolation: action !== 'create' // 创建用户时不需要数据隔离
+    }
+  )
 }
 
 /**
@@ -132,13 +140,16 @@ export function protectUserApi(
 export function protectAdminApi(
   handler: (request: NextRequest, user: User) => Promise<NextResponse>
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    requiredRole: 'ADMIN',
-    resourceType: 'system',
-    action: 'admin',
-    enableDataIsolation: false // 管理员API不需要数据隔离
-  })
+  return protectApiRoute(
+    (request: NextRequest, user?: User) => handler(request, user!),
+    {
+      requireAuth: true,
+      requiredRole: 'ADMIN',
+      resourceType: 'system',
+      action: 'admin',
+      enableDataIsolation: false // 管理员API不需要数据隔离
+    }
+  )
 }
 
 /**
@@ -148,12 +159,15 @@ export function protectSessionApi(
   handler: (request: NextRequest, user: User, secureDataAccess?: any) => Promise<NextResponse>,
   action: 'create' | 'read' | 'update' | 'delete' = 'read'
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    resourceType: 'session',
-    action,
-    enableDataIsolation: true
-  })
+  return protectApiRoute(
+    (request: NextRequest, user?: User, secureDataAccess?: any) => handler(request, user!, secureDataAccess),
+    {
+      requireAuth: true,
+      resourceType: 'session',
+      action,
+      enableDataIsolation: true
+    }
+  )
 }
 
 /**
@@ -164,27 +178,30 @@ export function protectBatchApi(
   handler: (request: NextRequest, user: User, secureDataAccess: any) => Promise<NextResponse>,
   resourceType: 'transaction' | 'user' | 'session' = 'transaction'
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    resourceType,
-    action: 'read', // 批量操作通常需要读取权限
-    enableDataIsolation: true,
-    customPermissionCheck: async (user: User, request: NextRequest) => {
-      // 对于批量操作，可以添加额外的检查
-      // 例如：检查请求的资源数量是否在合理范围内
-      try {
-        if (request.method === 'POST' || request.method === 'PUT') {
-          const body = await request.json()
-          if (Array.isArray(body) && body.length > 100) {
-            return false // 限制批量操作的数量
+  return protectApiRoute(
+    (request: NextRequest, user?: User, secureDataAccess?: any) => handler(request, user!, secureDataAccess),
+    {
+      requireAuth: true,
+      resourceType,
+      action: 'read', // 批量操作通常需要读取权限
+      enableDataIsolation: true,
+      customPermissionCheck: async (user: User, request: NextRequest) => {
+        // 对于批量操作，可以添加额外的检查
+        // 例如：检查请求的资源数量是否在合理范围内
+        try {
+          if (request.method === 'POST' || request.method === 'PUT') {
+            const body = await request.json()
+            if (Array.isArray(body) && body.length > 100) {
+              return false // 限制批量操作的数量
+            }
           }
+          return true
+        } catch {
+          return true // 如果无法解析请求体，允许继续
         }
-        return true
-      } catch {
-        return true // 如果无法解析请求体，允许继续
       }
     }
-  })
+  )
 }
 
 /**
@@ -194,17 +211,20 @@ export function protectBatchApi(
 export function protectExportApi(
   handler: (request: NextRequest, user: User, secureDataAccess: any) => Promise<NextResponse>
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    resourceType: 'transaction',
-    action: 'read',
-    enableDataIsolation: true,
-    customPermissionCheck: async (user: User, request: NextRequest) => {
-      // 可以添加导出频率限制等检查
-      // 例如：检查用户是否在短时间内多次导出
-      return true // 暂时允许所有导出请求
+  return protectApiRoute(
+    (request: NextRequest, user?: User, secureDataAccess?: any) => handler(request, user!, secureDataAccess),
+    {
+      requireAuth: true,
+      resourceType: 'transaction',
+      action: 'read',
+      enableDataIsolation: true,
+      customPermissionCheck: async (user: User, request: NextRequest) => {
+        // 可以添加导出频率限制等检查
+        // 例如：检查用户是否在短时间内多次导出
+        return true // 暂时允许所有导出请求
+      }
     }
-  })
+  )
 }
 
 /**
@@ -214,10 +234,13 @@ export function protectExportApi(
 export function protectStatsApi(
   handler: (request: NextRequest, user: User, secureDataAccess: any) => Promise<NextResponse>
 ) {
-  return protectApiRoute(handler, {
-    requireAuth: true,
-    resourceType: 'transaction',
-    action: 'read',
-    enableDataIsolation: true
-  })
+  return protectApiRoute(
+    (request: NextRequest, user?: User, secureDataAccess?: any) => handler(request, user!, secureDataAccess),
+    {
+      requireAuth: true,
+      resourceType: 'transaction',
+      action: 'read',
+      enableDataIsolation: true
+    }
+  )
 }

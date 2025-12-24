@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { validateRegistrationData } from '@/lib/validation/auth-validation'
+import { apiFetch } from '@/lib/api'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -60,7 +61,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await apiFetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +264,7 @@ export default function RegisterPage() {
 
             <div className="text-center text-sm text-gray-600 bg-white/40 p-3 rounded-lg">
               已有账户？{' '}
-              <a href="/login" className="text-blue-600 hover:text-blue-800 hover:underline font-semibold">
+              <a href="/note/login" className="text-blue-600 hover:text-blue-800 hover:underline font-semibold">
                 立即登录
               </a>
             </div>

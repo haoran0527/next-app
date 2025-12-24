@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { apiFetch } from '@/lib/api'
 
 interface User {
   id: string
@@ -77,7 +78,7 @@ export default function AdminPage() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await apiFetch('/api/auth/me')
       const data = await response.json()
 
       if (data.success && data.user.role === 'ADMIN') {
@@ -94,7 +95,7 @@ export default function AdminPage() {
 
   const loadSystemStats = async () => {
     try {
-      const response = await fetch('/api/admin/stats')
+      const response = await apiFetch('/api/admin/stats')
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -115,7 +116,7 @@ export default function AdminPage() {
         ...(searchTerm && { search: searchTerm })
       })
 
-      const response = await fetch(`/api/admin/users?${params}`)
+      const response = await apiFetch(`/api/admin/users?${params}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -138,7 +139,7 @@ export default function AdminPage() {
         limit: '20'
       })
 
-      const response = await fetch(`/api/admin/audit-logs?${params}`)
+      const response = await apiFetch(`/api/admin/audit-logs?${params}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -165,7 +166,7 @@ export default function AdminPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/users/${userId}/actions`, {
+      const response = await apiFetch(`/api/admin/users/${userId}/actions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +198,7 @@ export default function AdminPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/users/${userId}/actions`, {
+      const response = await apiFetch(`/api/admin/users/${userId}/actions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,7 +224,7 @@ export default function AdminPage() {
 
   const handleBackup = async () => {
     try {
-      const response = await fetch('/api/admin/backup', {
+      const response = await apiFetch('/api/admin/backup', {
         method: 'POST',
       })
 
@@ -256,7 +257,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      const response = await apiFetch('/api/auth/logout', {
         method: 'POST',
       })
 

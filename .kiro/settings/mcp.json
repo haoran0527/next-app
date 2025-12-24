@@ -6,7 +6,7 @@
         "-y",
         "mcp-ssh-tool"
       ],
-      "disabled": true,
+      "disabled": false,
       "autoApprove": [
         "ssh_openSession",
         "ssh_closeSession",
@@ -35,6 +35,24 @@
       "env": {
         "DEFAULT_MINIMUM_TOKENS": "10000"
       }
+    },
+      "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "new_page",
+        "take_snapshot",
+        "click",
+        "fill_form",
+        "navigate_page",
+        "wait_for"
+      ]
     }
+  }
   }
 }

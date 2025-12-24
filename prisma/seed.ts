@@ -3,12 +3,15 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 import bcrypt from 'bcryptjs'
 
+// 从环境变量获取数据库密码，默认为 'postgres'
+const dbPassword = process.env.POSTGRES_PASSWORD || 'postgres'
+
 const pool = new Pool({
   host: 'localhost',
   port: 5432,
   database: 'accounting_app',
   user: 'postgres',
-  password: 'postgres',
+  password: dbPassword,
 })
 
 const adapter = new PrismaPg(pool)

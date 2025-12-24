@@ -50,10 +50,10 @@ export async function POST(request: NextRequest) {
     // 设置会话Cookie
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // 暂时禁用，因为使用HTTP而非HTTPS
       sameSite: 'strict' as const,
       maxAge: rememberMe ? 7 * 24 * 60 * 60 : 24 * 60 * 60, // 7天或1天
-      path: '/'
+      path: '/note'
     }
 
     response.cookies.set('session-token', result.session!.token, cookieOptions)

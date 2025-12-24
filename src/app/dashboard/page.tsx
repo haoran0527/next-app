@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import TransactionForm from '@/components/TransactionForm'
 import TransactionList from '@/components/TransactionList'
 import StatisticsCharts from '@/components/StatisticsCharts'
+import { apiFetch } from '@/lib/api'
 import { 
   Transaction, 
   TransactionFilters, 
@@ -66,7 +67,7 @@ export default function DashboardPage() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me')
+      const response = await apiFetch('/api/auth/me')
       const data = await response.json()
 
       if (data.success) {
@@ -84,7 +85,7 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       // 加载统计数据
-      const statsResponse = await fetch('/api/user/stats')
+      const statsResponse = await apiFetch('/api/user/stats')
       if (statsResponse.ok) {
         const statsData = await statsResponse.json()
         if (statsData.success) {
@@ -110,7 +111,7 @@ export default function DashboardPage() {
         )
       })
 
-      const response = await fetch(`/api/transactions?${params}`)
+      const response = await apiFetch(`/api/transactions?${params}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
@@ -129,7 +130,7 @@ export default function DashboardPage() {
   const handleCreateTransaction = async (data: CreateTransactionData) => {
     setSubmitLoading(true)
     try {
-      const response = await fetch('/api/transactions', {
+      const response = await apiFetch('/api/transactions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export default function DashboardPage() {
     
     setSubmitLoading(true)
     try {
-      const response = await fetch(`/api/transactions/${editingTransaction.id}`, {
+      const response = await apiFetch(`/api/transactions/${editingTransaction.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +199,7 @@ export default function DashboardPage() {
 
   const handleDeleteTransaction = async (transactionId: string) => {
     try {
-      const response = await fetch(`/api/transactions/${transactionId}`, {
+      const response = await apiFetch(`/api/transactions/${transactionId}`, {
         method: 'DELETE',
       })
 
@@ -228,7 +229,7 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      const response = await apiFetch('/api/auth/logout', {
         method: 'POST',
       })
 
@@ -242,7 +243,7 @@ export default function DashboardPage() {
 
   const handleExportCsv = async () => {
     try {
-      const response = await fetch('/api/transactions/export')
+      const response = await apiFetch('/api/transactions/export')
       
       if (response.ok) {
         const contentDisposition = response.headers.get('Content-Disposition')

@@ -27,24 +27,25 @@ async function handleGetUserTransactions(
       )
     }
 
-    // 解析查询参数
-    const options = {
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '20'),
-      type: searchParams.get('type') as 'INCOME' | 'EXPENSE' | undefined,
-      category: searchParams.get('category') || undefined
-    }
-
     // 解析日期参数
     const startDateStr = searchParams.get('startDate')
     const endDateStr = searchParams.get('endDate')
-    
-    if (startDateStr) {
-      options.startDate = new Date(startDateStr)
-    }
-    
-    if (endDateStr) {
-      options.endDate = new Date(endDateStr)
+
+    // 解析查询参数
+    const options: {
+      page: number
+      limit: number
+      type?: 'INCOME' | 'EXPENSE'
+      category?: string
+      startDate?: Date
+      endDate?: Date
+    } = {
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: parseInt(searchParams.get('limit') || '20'),
+      type: searchParams.get('type') as 'INCOME' | 'EXPENSE' | undefined,
+      category: searchParams.get('category') || undefined,
+      startDate: startDateStr ? new Date(startDateStr) : undefined,
+      endDate: endDateStr ? new Date(endDateStr) : undefined
     }
 
     // 获取用户交易记录

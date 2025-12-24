@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         { 
           success: false, 
           error: '输入数据验证失败',
-          details: validation.error.errors
+          details: validation.error.issues
         },
         { status: 400 }
       )
