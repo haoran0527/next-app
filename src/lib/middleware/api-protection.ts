@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { User } from '../types/auth'
 import { withAuth, withSecureAccess } from './auth-middleware'

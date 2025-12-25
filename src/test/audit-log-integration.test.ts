@@ -187,8 +187,8 @@ describe('审计日志集成测试', () => {
       const actions = [
         { action: ADMIN_ACTIONS.USER_CREATE, targetId: regularUser.id },
         { action: ADMIN_ACTIONS.USER_UPDATE, targetId: regularUser.id },
-        { action: ADMIN_ACTIONS.SYSTEM_STATS_VIEW, targetId: null },
-        { action: ADMIN_ACTIONS.SYSTEM_BACKUP, targetId: null }
+        { action: ADMIN_ACTIONS.SYSTEM_STATS_VIEW, targetId: undefined },
+        { action: ADMIN_ACTIONS.SYSTEM_BACKUP, targetId: undefined }
       ]
 
       for (const actionData of actions) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from '../types/auth'
 import { prisma } from '../prisma'
 

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import TransactionForm from '@/components/TransactionForm'
 import TransactionList from '@/components/TransactionList'
 import StatisticsCharts from '@/components/StatisticsCharts'
+import AgentInput from '@/components/AgentInput'
 import { apiFetch } from '@/lib/api'
 import { 
   Transaction, 
@@ -25,7 +26,7 @@ interface User {
   createdAt: string
 }
 
-type ViewMode = 'dashboard' | 'add' | 'edit' | 'list'
+type ViewMode = 'dashboard' | 'add' | 'edit' | 'list' | 'agent'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -343,6 +344,16 @@ export default function DashboardPage() {
               ➕ 添加记录
             </button>
             <button
+              onClick={() => setViewMode('agent')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+                viewMode === 'agent'
+                  ? 'border-blue-500 text-blue-600 bg-blue-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              🤖 智能记账
+            </button>
+            <button
               onClick={() => setViewMode('list')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
                 viewMode === 'list'
@@ -474,6 +485,23 @@ export default function DashboardPage() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+
+          {viewMode === 'agent' && (
+            <div className="max-w-2xl mx-auto animate-in fade-in-50 duration-500">
+              <div className="mb-6 text-center">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  智能记账
+                </h2>
+                <p className="text-gray-600 mt-2">使用AI助手快速记录您的财务信息</p>
+              </div>
+              <AgentInput
+                onSuccess={async () => {
+                  await loadDashboardData()
+                  setViewMode('dashboard')
+                }}
               />
             </div>
           )}
