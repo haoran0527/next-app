@@ -32,7 +32,7 @@ interface AuditLog {
   adminId: string
   action: string
   targetId?: string
-  details?: any
+  details?: Record<string, unknown>
   createdAt: string
 }
 
