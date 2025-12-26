@@ -6,36 +6,11 @@ function getCurrentMonthRange() {
   const year = now.getFullYear()
   const month = now.getMonth() + 1
   const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-  
+
   const lastDay = new Date(year, month, 0).getDate()
   const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
-  
+
   return { startDate, endDate }
-}
-
-function formatDateOnly(dateStr) {
-  const date = new Date(dateStr)
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-}
-
-function isToday(dateStr) {
-  const today = new Date()
-  const date = new Date(dateStr)
-  return date.getFullYear() === today.getFullYear() &&
-         date.getMonth() === today.getMonth() &&
-         date.getDate() === today.getDate()
-}
-
-function formatDateTime(dateStr) {
-  const date = new Date(dateStr)
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hour = String(date.getHours()).padStart(2, '0')
-  const minute = String(date.getMinutes()).padStart(2, '0')
-  return `${month}月${day}日 ${hour}:${minute}`
 }
 
 Page({
@@ -140,7 +115,51 @@ Page({
       }
 
       const res = await get('/transactions', params)
-      const newTransactions = res.transactions || res
+      const rawTransactions = res.transactions || []
+
+      // 预处理交易数据，添加格式化的日期字段
+      const newTransactions = rawTransactions.map(item => {
+        console.log('处理交易数据:', item)
+        const dateValue = item.date
+        console.log('原始日期值:', dateValue, '类型:', typeof dateValue)
+
+        let formattedDate = '--'
+        let formattedTime = '--'
+        let isTodayItem = false
+
+        if (dateValue) {
+          try {
+            const date = new Date(dateValue)
+            if (!isNaN(date.getTime())) {
+              // 格式化日期：YYYY-MM-DD
+              const year = date.getFullYear()
+              const month = String(date.getMonth() + 1).padStart(2, '0')
+              const day = String(date.getDate()).padStart(2, '0')
+              formattedDate = `${year}-${month}-${day}`
+
+              // 格式化时间：MM月DD日 HH:mm
+              const hour = String(date.getHours()).padStart(2, '0')
+              const minute = String(date.getMinutes()).padStart(2, '0')
+              formattedTime = `${month}月${day}日 ${hour}:${minute}`
+
+              // 判断是否是今天
+              const today = new Date()
+              isTodayItem = date.getFullYear() === today.getFullYear() &&
+                           date.getMonth() === today.getMonth() &&
+                           date.getDate() === today.getDate()
+            }
+          } catch (error) {
+            console.error('日期解析错误:', error)
+          }
+        }
+
+        return {
+          ...item,
+          formattedDate,  // 完整日期 YYYY-MM-DD
+          formattedTime,  // 格式化时间 MM月DD日 HH:mm
+          isToday: isTodayItem
+        }
+      })
 
       this.setData({
         transactions: [...this.data.transactions, ...newTransactions],
@@ -167,18 +186,6 @@ Page({
     this.loadTransactions().then(() => {
       wx.stopPullDownRefresh()
     })
-  },
-
-  formatDate(dateStr) {
-    return formatDateTime(dateStr)
-  },
-
-  formatDateOnly(dateStr) {
-    return formatDateOnly(dateStr)
-  },
-
-  isToday(dateStr) {
-    return isToday(dateStr)
   },
 
   goToDetail(e) {

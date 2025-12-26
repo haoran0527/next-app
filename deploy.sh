@@ -1,79 +1,77 @@
 #!/bin/bash
 
-# 简化部署脚本 - 只启动数据库，应用在宿主机运行
+# 本地部署脚本 - 打包并上传代码到服务器
 
-set -e
+# 配置变量
+SERVER_IP="121.89.202.27"
+SERVER_USER="root"
+SSH_KEY="C:/Users/haora/.ssh/next_app_key"
+SERVER_DIR="/root/next-accounting-app"
+ARCHIVE_NAME="next-accounting-app.tar.gz"
 
-# 颜色定义
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+echo "=========================================="
+echo "开始部署到服务器 $SERVER_IP"
+echo "=========================================="
 
-# 检查 Docker 权限
-if ! docker ps >/dev/null 2>&1; then
-    COMPOSE_CMD="sudo docker compose"
-else
-    COMPOSE_CMD="docker compose"
-fi
-
-echo -e "${BLUE}🚀 部署会计应用（数据库模式）${NC}"
-echo -e "${CYAN}使用命令: $COMPOSE_CMD${NC}"
-echo ""
-
-# 检查必要文件
-echo -e "${BLUE}📋 检查必要文件${NC}"
-if [ ! -f "docker-compose.yml" ]; then
-    echo -e "${RED}❌ 未找到docker-compose.yml${NC}"
+# 检查 SSH 密钥是否存在
+if [ ! -f "$SSH_KEY" ]; then
+    echo "错误: SSH 密钥文件不存在: $SSH_KEY"
     exit 1
 fi
 
-if [ ! -f ".env" ]; then
-    if [ -f ".env.production" ]; then
-        echo -e "${YELLOW}⚠️ 复制 .env.production 到 .env${NC}"
-        cp .env.production .env
-    else
-        echo -e "${RED}❌ 未找到环境变量文件${NC}"
-        exit 1
-    fi
+# 检查是否在项目根目录
+if [ ! -f "package.json" ]; then
+    echo "错误: 请在项目根目录运行此脚本"
+    exit 1
 fi
 
-echo -e "${GREEN}✅ 文件检查通过${NC}"
+# 创建压缩包（排除敏感文件和依赖）
+echo "步骤 1/4: 创建代码压缩包..."
+tar --exclude='.env' \
+    --exclude='node_modules' \
+    --exclude='.next' \
+    --exclude='.git' \
+    --exclude='*.log' \
+    --exclude='next-accounting-app.tar.gz' \
+    -czf "$ARCHIVE_NAME" .
 
-# 启动数据库
-echo -e "${BLUE}🗄️ 启动PostgreSQL数据库${NC}"
-$COMPOSE_CMD up -d postgres
+if [ $? -ne 0 ]; then
+    echo "错误: 创建压缩包失败"
+    exit 1
+fi
 
-# 等待数据库就绪
-echo -e "${BLUE}⏳ 等待数据库就绪${NC}"
-for i in {1..30}; do
-    if $COMPOSE_CMD exec -T postgres pg_isready -U postgres >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ 数据库启动成功${NC}"
-        break
-    fi
-    if [ $i -eq 30 ]; then
-        echo -e "${RED}❌ 数据库启动超时${NC}"
-        $COMPOSE_CMD logs postgres
-        exit 1
-    fi
-    echo "等待数据库... ($i/30)"
-    sleep 2
-done
+echo "压缩包创建成功: $ARCHIVE_NAME"
 
-# 显示状态
-echo -e "${BLUE}🔍 检查服务状态${NC}"
-$COMPOSE_CMD ps
+# 上传压缩包到服务器
+echo "步骤 2/4: 上传压缩包到服务器..."
+scp -i "$SSH_KEY" \
+    -o StrictHostKeyChecking=no \
+    "$ARCHIVE_NAME" \
+    "${SERVER_USER}@${SERVER_IP}:/root/"
 
-echo ""
-echo -e "${GREEN}✅ 数据库部署完成！${NC}"
-echo ""
-echo -e "${BLUE}💡 接下来的步骤：${NC}"
-echo -e "  1. ${CYAN}./install-host-deps.sh${NC}  # 安装依赖和构建应用"
-echo -e "  2. ${CYAN}./start-app.sh${NC}          # 启动应用"
-echo ""
-echo -e "${YELLOW}📝 注意事项：${NC}"
-echo -e "  - 数据库运行在Docker容器中（端口5432）"
-echo -e "  - 应用将在宿主机运行（端口3000）"
-echo -e "  - 这样避免了容器内的依赖问题"
+if [ $? -ne 0 ]; then
+    echo "错误: 上传压缩包失败"
+    exit 1
+fi
+
+echo "上传成功"
+
+# 在服务器上执行部署脚本
+echo "步骤 3/4: 在服务器上执行部署..."
+ssh -i "$SSH_KEY" \
+    -o StrictHostKeyChecking=no \
+    "${SERVER_USER}@${SERVER_IP}" \
+    "bash $SERVER_DIR/deploy-server.sh"
+
+if [ $? -ne 0 ]; then
+    echo "错误: 服务器部署失败"
+    exit 1
+fi
+
+# 清理本地压缩包
+echo "步骤 4/4: 清理本地文件..."
+rm -f "$ARCHIVE_NAME"
+
+echo "=========================================="
+echo "部署完成！"
+echo "=========================================="

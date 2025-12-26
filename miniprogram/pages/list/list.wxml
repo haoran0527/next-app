@@ -69,30 +69,26 @@
       <text>暂无交易记录</text>
     </view>
 
-    <view 
-      wx:for="{{transactions}}" 
-      wx:key="id" 
-      class="transaction-item {{isToday(item.date) ? 'today' : ''}}"
+    <view
+      wx:for="{{transactions}}"
+      wx:key="id"
+      class="transaction-item"
       bindtap="goToDetail"
       data-id="{{item.id}}"
     >
-      <view class="transaction-date-badge">
-        <text class="date-month">{{formatDateOnly(item.date).slice(5, 7)}}月</text>
-        <text class="date-day">{{formatDateOnly(item.date).slice(8, 10)}}</text>
-      </view>
       <view class="transaction-main">
         <view class="transaction-info">
-          <text class="transaction-category">{{item.category}}</text>
-          <text class="transaction-description" wx:if="{{item.description}}">{{item.description}}</text>
+          <view class="transaction-category">{{item.category}}</view>
+          <view class="transaction-description" wx:if="{{item.description}}">{{item.description}}</view>
         </view>
-        <view class="transaction-amount {{item.type === 'INCOME' ? 'income' : 'expense'}}">
-          {{item.type === 'INCOME' ? '+' : '-'}}¥{{item.amount}}
-        </view>
-      </view>
-      <view class="transaction-footer">
-        <text class="transaction-time">{{formatDate(item.createdAt)}}</text>
-        <view class="delete-btn" catchtap="onDelete" data-id="{{item.id}}" data-index="{{index}}">
-          <text>删除</text>
+        <view class="transaction-right">
+          <view class="transaction-amount {{item.type === 'INCOME' ? 'income' : 'expense'}}">
+            {{item.type === 'INCOME' ? '+' : '-'}}¥{{item.amount}}
+          </view>
+          <view class="transaction-time">
+            <text class="time-icon">📅</text>
+            <text>{{item.formattedTime}}</text>
+          </view>
         </view>
       </view>
     </view>

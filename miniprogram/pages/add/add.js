@@ -1,8 +1,10 @@
 const app = getApp()
-const { post } = require('../../utils/request.js')
+const { post, put, get } = require('../../utils/request.js')
 
 Page({
   data: {
+    transactionId: '',
+    mode: 'create', // 'create' 或 'edit'
     inputText: '',
     type: 'EXPENSE',
     amount: '',
@@ -22,11 +24,22 @@ Page({
     hasParsed: false
   },
 
-  onLoad() {
+  onLoad(options) {
     if (!app.checkLogin()) {
       return
     }
-    this.initData()
+
+    // 检查是否是编辑模式
+    const { id, mode } = options
+    if (id && mode === 'edit') {
+      this.setData({
+        transactionId: id,
+        mode: 'edit'
+      })
+      this.loadTransaction(id)
+    } else {
+      this.initData()
+    }
   },
 
   initData() {
@@ -36,6 +49,35 @@ Page({
       currentCategories: this.data.categories.EXPENSE,
       date: dateStr
     })
+  },
+
+  async loadTransaction(id) {
+    wx.showLoading({ title: '加载中...' })
+
+    try {
+      const res = await get(`/transactions/${id}`)
+      const transaction = res.data.data || res.data
+
+      const type = transaction.type
+      const dateObj = new Date(transaction.date)
+
+      this.setData({
+        amount: transaction.amount,
+        type,
+        category: transaction.category,
+        description: transaction.description || '',
+        date: this.formatDate(dateObj),
+        currentCategories: this.data.categories[type]
+      })
+    } catch (error) {
+      console.error('加载交易详情失败:', error)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   formatDate(date) {
@@ -140,15 +182,15 @@ Page({
   },
 
   async onSave() {
-    const { amount, type, category, description, date, inputText, hasParsed } = this.data
-    
+    const { amount, type, category, description, date, inputText, hasParsed, mode, transactionId } = this.data
+
     try {
       if (inputText.trim() && !hasParsed) {
         await this.onParse()
       }
-      
+
       const currentData = this.data
-      
+
       if (!currentData.amount || parseFloat(currentData.amount) <= 0) {
         wx.showToast({
           title: '请输入有效金额',
@@ -165,35 +207,52 @@ Page({
         return
       }
 
-      await post('/transactions', {
+      const transactionData = {
         amount: parseFloat(currentData.amount),
         type: currentData.type,
         category: currentData.category,
         description: currentData.description,
         date: new Date(currentData.date)
-      })
+      }
 
-      this.setData({
-        inputText: '',
-        amount: '',
-        category: '',
-        description: '',
-        date: this.formatDate(new Date()),
-        hasParsed: false
-      })
-
-      wx.showToast({
-        title: '保存成功',
-        icon: 'success'
-      })
-
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/index/index'
+      if (mode === 'edit') {
+        // 编辑模式：更新交易
+        await put(`/transactions/${transactionId}`, transactionData)
+        wx.showToast({
+          title: '更新成功',
+          icon: 'success'
         })
-      }, 1500)
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      } else {
+        // 创建模式：新建交易
+        await post('/transactions', transactionData)
+
+        this.setData({
+          inputText: '',
+          amount: '',
+          category: '',
+          description: '',
+          date: this.formatDate(new Date()),
+          hasParsed: false
+        })
+
+        wx.showToast({
+          title: '保存成功',
+          icon: 'success'
+        })
+
+        setTimeout(() => {
+          wx.navigateBack()
+        }, 1500)
+      }
     } catch (error) {
       console.error('保存失败:', error)
+      wx.showToast({
+        title: mode === 'edit' ? '更新失败' : '保存失败',
+        icon: 'none'
+      })
     }
   },
 

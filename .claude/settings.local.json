@@ -31,7 +31,9 @@
       "Bash(npm run build:*)",
       "Bash(cross-env TURBOPACK=0 npm run build:*)",
       "Bash(npx cross-env TURBOPACK=0 next build:*)",
-      "mcp__ssh-tool__os_detect"
+      "mcp__ssh-tool__os_detect",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

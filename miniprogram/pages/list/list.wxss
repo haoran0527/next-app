@@ -113,76 +113,40 @@
 .transaction-item {
   background: #fff;
   border-radius: 16rpx;
-  padding: 24rpx;
+  padding: 28rpx 32rpx;
   margin-bottom: 16rpx;
-  display: flex;
-  align-items: flex-start;
-  gap: 20rpx;
-}
-
-.transaction-item.today {
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  border: 2rpx solid #4caf50;
-}
-
-.transaction-date-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 72rpx;
-  padding: 12rpx 8rpx;
-  background: #f5f5f5;
-  border-radius: 12rpx;
-}
-
-.transaction-item.today .transaction-date-badge {
-  background: #4caf50;
-}
-
-.date-month {
-  font-size: 20rpx;
-  color: #999;
-}
-
-.transaction-item.today .date-month {
-  color: #fff;
-}
-
-.date-day {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.transaction-item.today .date-day {
-  color: #fff;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
 .transaction-main {
-  flex: 1;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12rpx;
+  align-items: center;
 }
 
 .transaction-info {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  padding-right: 20rpx;
 }
 
 .transaction-category {
   font-size: 32rpx;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 8rpx;
 }
 
 .transaction-description {
   font-size: 24rpx;
   color: #999;
+  margin-top: 4rpx;
+}
+
+.transaction-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
 }
 
 .transaction-amount {
@@ -198,28 +162,15 @@
   color: #ff4d4f;
 }
 
-.transaction-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #f0f0f0;
-}
-
 .transaction-time {
   font-size: 24rpx;
   color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
 }
 
-.transaction-item.today .transaction-time {
-  color: #2e7d32;
-}
-
-.delete-btn {
-  padding: 8rpx 24rpx;
-  background: #fff0f0;
-  border-radius: 8rpx;
-  color: #ff4d4f;
+.time-icon {
   font-size: 24rpx;
 }
 

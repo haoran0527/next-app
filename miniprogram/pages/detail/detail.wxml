@@ -1,33 +1,75 @@
 <view class="container" wx:if="{{!loading && transaction}}">
+  <!-- 金额卡片 -->
   <view class="amount-card {{transaction.type === 'INCOME' ? 'income' : 'expense'}}">
     <text class="amount-label">{{transaction.type === 'INCOME' ? '收入' : '支出'}}</text>
-    <text class="amount-value">{{transaction.type === 'INCOME' ? '+' : '-'}}¥{{transaction.amount}}</text>
+    <view wx:if="{{isEditing}}" class="amount-edit">
+      <text class="amount-prefix">{{transaction.type === 'INCOME' ? '+' : '-'}}¥</text>
+      <input
+        class="amount-input"
+        type="digit"
+        value="{{editAmount}}"
+        bindinput="onAmountInput"
+        placeholder="请输入金额"
+      />
+    </view>
+    <text wx:else class="amount-value">{{transaction.type === 'INCOME' ? '+' : '-'}}¥{{transaction.amount}}</text>
   </view>
 
   <view class="detail-section">
+    <!-- 交易类型 -->
+    <view class="detail-item">
+      <text class="detail-label">类型</text>
+      <picker wx:if="{{isEditing}}" mode="selector" range="{{types}}" bindchange="onTypeChange">
+        <view class="detail-value picker-value">
+          {{types[editType === 'INCOME' ? 0 : 1]}}
+        </view>
+      </picker>
+      <text wx:else class="detail-value">{{transaction.type === 'INCOME' ? '收入' : '支出'}}</text>
+    </view>
+
+    <!-- 分类 -->
     <view class="detail-item">
       <text class="detail-label">分类</text>
-      <text class="detail-value">{{transaction.category}}</text>
+      <picker wx:if="{{isEditing}}" mode="selector" range="{{currentCategories}}" bindchange="onCategoryChange">
+        <view class="detail-value picker-value">
+          {{editCategory || '请选择分类'}}
+        </view>
+      </picker>
+      <text wx:else class="detail-value">{{transaction.category}}</text>
     </view>
 
+    <!-- 日期 -->
     <view class="detail-item">
       <text class="detail-label">日期</text>
-      <text class="detail-value">{{transaction.formattedDate}}</text>
+      <picker wx:if="{{isEditing}}" mode="date" value="{{editDate}}" end="{{today}}" bindchange="onDateChange">
+        <view class="detail-value picker-value">
+          {{editDate || '请选择日期'}}
+        </view>
+      </picker>
+      <text wx:else class="detail-value">{{transaction.formattedDate}}</text>
     </view>
 
-    <view class="detail-item" wx:if="{{transaction.description}}">
-      <text class="detail-label">备注</text>
-      <text class="detail-value">{{transaction.description}}</text>
-    </view>
-
+    <!-- 备注 -->
     <view class="detail-item">
-      <text class="detail-label">创建时间</text>
-      <text class="detail-value">{{transaction.formattedCreatedAt}}</text>
+      <text class="detail-label">备注</text>
+      <input
+        wx:if="{{isEditing}}"
+        class="detail-input"
+        value="{{editDescription}}"
+        bindinput="onDescriptionInput"
+        placeholder="请输入备注（可选）"
+        maxlength="200"
+      />
+      <text wx:elif="{{transaction.description}}" class="detail-value">{{transaction.description}}</text>
+      <text wx:else class="detail-value empty">无</text>
     </view>
   </view>
 
   <view class="action-buttons">
-    <button class="btn-delete" bindtap="onDelete">删除</button>
+    <button wx:if="{{!isEditing}}" class="btn-edit" catchtap="onStartEdit">编辑</button>
+    <button wx:if="{{!isEditing}}" class="btn-delete" catchtap="onDelete">删除</button>
+    <button wx:if="{{isEditing}}" class="btn-cancel" catchtap="onCancelEdit">取消</button>
+    <button wx:if="{{isEditing}}" class="btn-save" catchtap="onSaveEdit">保存</button>
   </view>
 </view>
 
