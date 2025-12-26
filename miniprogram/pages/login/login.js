@@ -5,7 +5,8 @@ Page({
   data: {
     username: '',
     password: '',
-    loading: false
+    loading: false,
+    wechatLoading: false
   },
 
   onLoad() {
@@ -64,5 +65,67 @@ Page({
     wx.navigateTo({
       url: '/pages/register/register'
     })
+  },
+
+  async onWechatLogin(e) {
+    const { wechatLoading } = this.data
+
+    if (wechatLoading) {
+      return
+    }
+
+    this.setData({ wechatLoading: true })
+
+    try {
+      wx.login({
+        success: async (res) => {
+          if (res.code) {
+            try {
+              const loginRes = await post('/auth/wechat-login', { 
+                code: res.code,
+                userInfo: e.detail.userInfo 
+              })
+              
+              app.setToken(loginRes.sessionToken)
+              app.setUserInfo(loginRes.user)
+
+              wx.showToast({
+                title: '登录成功',
+                icon: 'success'
+              })
+
+              setTimeout(() => {
+                wx.switchTab({
+                  url: '/pages/index/index'
+                })
+              }, 1500)
+            } catch (error) {
+              console.error('微信登录失败:', error)
+              wx.showToast({
+                title: '登录失败，请重试',
+                icon: 'none'
+              })
+            }
+          } else {
+            wx.showToast({
+              title: '获取登录凭证失败',
+              icon: 'none'
+            })
+          }
+          this.setData({ wechatLoading: false })
+        },
+        fail: (err) => {
+          console.error('wx.login 失败:', err)
+          wx.showToast({
+            title: '登录失败，请重试',
+            icon: 'none'
+          })
+          this.setData({ wechatLoading: false })
+        }
+      })
+    } catch (error) {
+      console.error('微信登录错误:', error)
+      this.setData({ wechatLoading: false })
+    }
   }
 })

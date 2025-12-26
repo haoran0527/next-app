@@ -16,6 +16,31 @@ App({
     if (userInfo) {
       this.globalData.userInfo = userInfo
     }
+
+    this.wechatAutoLogin()
+  },
+
+  wechatAutoLogin() {
+    wx.login({
+      success: (res) => {
+        if (res.code) {
+          const { post } = require('./utils/request.js')
+          
+          post('/auth/wechat-login', { code: res.code })
+            .then(data => {
+              this.setToken(data.sessionToken)
+              this.setUserInfo(data.user)
+              console.log('微信自动登录成功')
+            })
+            .catch(err => {
+              console.log('微信自动登录失败，需要手动登录:', err)
+            })
+        }
+      },
+      fail: (err) => {
+        console.log('wx.login 失败:', err)
+      }
+    })
   },
 
   setToken(token) {
@@ -46,8 +71,15 @@ App({
   checkLogin() {
     const token = this.getToken()
     if (!token) {
-      wx.redirectTo({
-        url: '/pages/login/login'
+      wx.showModal({
+        title: '提示',
+        content: '请先登录',
+        showCancel: false,
+        success: () => {
+          wx.redirectTo({
+            url: '/pages/login/login'
+          })
+        }
       })
       return false
     }

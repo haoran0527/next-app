@@ -1,9 +1,7 @@
 @echo off
-REM Windows 部署脚本 - 打包并上传代码到服务器
-
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-REM 配置变量
 set SERVER_IP=121.89.202.27
 set SERVER_USER=root
 set SSH_KEY=C:\Users\haora\.ssh\next_app_key
@@ -11,70 +9,52 @@ set SERVER_DIR=/root/next-accounting-app
 set ARCHIVE_NAME=next-accounting-app.tar.gz
 
 echo ==========================================
-echo 开始部署到服务器 %SERVER_IP%
+echo Start deployment to server %SERVER_IP%
 echo ==========================================
 
-REM 检查 SSH 密钥是否存在
 if not exist "%SSH_KEY%" (
-    echo 错误: SSH 密钥文件不存在: %SSH_KEY%
+    echo Error: SSH key file not found: %SSH_KEY%
     exit /b 1
 )
 
-REM 检查是否在项目根目录
 if not exist "package.json" (
-    echo 错误: 请在项目根目录运行此脚本
+    echo Error: Please run this script in project root directory
     exit /b 1
 )
 
-REM 创建压缩包（排除敏感文件和依赖）
-echo 步骤 1/4: 创建代码压缩包...
-tar --exclude=.env ^
-    --exclude=node_modules ^
-    --exclude=.next ^
-    --exclude=.git ^
-    --exclude=*.log ^
-    --exclude=next-accounting-app.tar.gz ^
-    -czf %ARCHIVE_NAME% .
+echo Step 1/4: Creating code archive...
+tar --exclude=.env --exclude=node_modules --exclude=.next --exclude=.git --exclude=*.log --exclude=next-accounting-app.tar.gz -czf %ARCHIVE_NAME% .
 
 if %errorlevel% neq 0 (
-    echo 错误: 创建压缩包失败
+    echo Error: Failed to create archive
     exit /b 1
 )
 
-echo 压缩包创建成功: %ARCHIVE_NAME%
+echo Archive created successfully: %ARCHIVE_NAME%
 
-REM 上传压缩包到服务器
-echo 步骤 2/4: 上传压缩包到服务器...
-scp -i "%SSH_KEY%" ^
-    -o StrictHostKeyChecking=no ^
-    %ARCHIVE_NAME% ^
-    %SERVER_USER%@%SERVER_IP%:/root/
+echo Step 2/4: Uploading archive to server...
+scp -i "%SSH_KEY%" -o StrictHostKeyChecking=no %ARCHIVE_NAME% %SERVER_USER%@%SERVER_IP%:/root/
 
 if %errorlevel% neq 0 (
-    echo 错误: 上传压缩包失败
+    echo Error: Failed to upload archive
     exit /b 1
 )
 
-echo 上传成功
+echo Upload successful
 
-REM 在服务器上执行部署脚本
-echo 步骤 3/4: 在服务器上执行部署...
-ssh -i "%SSH_KEY%" ^
-    -o StrictHostKeyChecking=no ^
-    %SERVER_USER%@%SERVER_IP% ^
-    "bash %SERVER_DIR%/deploy-server.sh"
+echo Step 3/4: Executing deployment on server...
+ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %SERVER_USER%@%SERVER_IP% "bash %SERVER_DIR%/deploy-server.sh"
 
 if %errorlevel% neq 0 (
-    echo 错误: 服务器部署失败
+    echo Error: Server deployment failed
     exit /b 1
 )
 
-REM 清理本地压缩包
-echo 步骤 4/4: 清理本地文件...
+echo Step 4/4: Cleaning up local files...
 del /f %ARCHIVE_NAME%
 
 echo ==========================================
-echo 部署完成！
+echo Deployment completed!
 echo ==========================================
 
 endlocal

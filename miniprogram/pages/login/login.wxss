@@ -76,6 +76,22 @@
   opacity: 0.6;
 }
 
+.btn-wechat {
+  width: 100%;
+  height: 88rpx;
+  background: #07c160;
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-top: 24rpx;
+}
+
+.btn-wechat[disabled] {
+  opacity: 0.6;
+}
+
 .register-link {
   text-align: center;
   margin-top: 40rpx;
