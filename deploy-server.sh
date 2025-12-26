@@ -48,8 +48,27 @@ if [ -f "/tmp/.env.backup" ]; then
     echo ".env 文件已恢复"
 fi
 
+# 执行数据库迁移
+echo "步骤 5/6: 执行数据库迁移..."
+cd "$SERVER_DIR"
+npx prisma migrate deploy
+
+if [ $? -ne 0 ]; then
+    echo "警告: 数据库迁移失败，但继续构建..."
+fi
+
+# 重新生成 Prisma Client
+echo "重新生成 Prisma Client..."
+cd "$SERVER_DIR"
+npx prisma generate
+
+if [ $? -ne 0 ]; then
+    echo "错误: Prisma Client 生成失败"
+    exit 1
+fi
+
 # 重新构建项目
-echo "步骤 5/5: 重新构建项目..."
+echo "步骤 6/6: 重新构建项目..."
 cd "$SERVER_DIR"
 npm run build
 

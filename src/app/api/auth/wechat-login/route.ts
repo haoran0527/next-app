@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db/prisma'
+import { prisma } from '@/lib/prisma'
 import { createSession } from '@/lib/services/session-service'
 
 interface WeChatLoginRequest {
@@ -79,7 +79,8 @@ export async function POST(request: NextRequest) {
           password,
           wechatOpenId: openid,
           role: 'USER',
-          isActive: true
+          isActive: true,
+          nickname: userInfo?.nickName
         }
       })
 
@@ -106,6 +107,7 @@ export async function POST(request: NextRequest) {
           id: user.id,
           email: user.email,
           username: user.username,
+          nickname: user.nickname,
           role: user.role
         }
       },

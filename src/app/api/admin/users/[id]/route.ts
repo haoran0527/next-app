@@ -132,6 +132,11 @@ async function handleUpdateUser(
       changes.username = body.username
     }
 
+    if (body.nickname !== undefined) {
+      updateData.nickname = body.nickname
+      changes.nickname = body.nickname
+    }
+
     if (body.role !== undefined) {
       if (!['USER', 'ADMIN'].includes(body.role)) {
         return NextResponse.json(
@@ -166,6 +171,7 @@ async function handleUpdateUser(
         id: true,
         email: true,
         username: true,
+        nickname: true,
         role: true,
         isActive: true,
         createdAt: true,

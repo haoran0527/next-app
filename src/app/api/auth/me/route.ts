@@ -17,6 +17,7 @@ async function handleGetCurrentUser(
         id: user.id,
         email: user.email,
         username: user.username,
+        nickname: user.nickname,
         role: user.role,
         isActive: user.isActive,
         createdAt: user.createdAt

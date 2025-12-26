@@ -22,6 +22,7 @@ interface User {
   id: string
   email: string
   username: string
+  nickname?: string
   role: string
   createdAt: string
 }
@@ -305,10 +306,10 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 px-3 py-2 bg-white/60 rounded-full">
                 <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">{user.username.charAt(0).toUpperCase()}</span>
+                  <span className="text-white text-sm font-medium">{(user.nickname || user.username).charAt(0).toUpperCase()}</span>
                 </div>
                 <span className="text-gray-700 font-medium">
-                  欢迎，{user.username}
+                  欢迎，{user.nickname || user.username}
                 </span>
               </div>
               <Button onClick={handleLogout} variant="outline" className="bg-white/60 hover:bg-white/80 border-white/30">

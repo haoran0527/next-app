@@ -11,6 +11,7 @@ interface User {
   id: string
   email: string
   username: string
+  nickname?: string
   role: string
   isActive: boolean
   createdAt: string
@@ -48,6 +49,10 @@ export default function AdminPage() {
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null)
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
   const [dataLoading, setDataLoading] = useState(false)
+  
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [editNickname, setEditNickname] = useState('')
+  const [showEditDialog, setShowEditDialog] = useState(false)
   
   // 分页和搜索
   const [currentPage, setCurrentPage] = useState(1)
@@ -219,6 +224,42 @@ export default function AdminPage() {
     } catch (error) {
       console.error('密码重置失败:', error)
       alert('重置失败，请稍后重试')
+    }
+  }
+
+  const handleEditNickname = (user: User) => {
+    setEditingUser(user)
+    setEditNickname(user.nickname || '')
+    setShowEditDialog(true)
+  }
+
+  const handleSaveNickname = async () => {
+    if (!editingUser) return
+
+    try {
+      const response = await apiFetch(`/api/admin/users/${editingUser.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nickname: editNickname }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          alert('昵称更新成功！')
+          setShowEditDialog(false)
+          loadUsers()
+        } else {
+          alert(`更新失败: ${data.error}`)
+        }
+      } else {
+        alert('更新失败，请稍后重试')
+      }
+    } catch (error) {
+      console.error('昵称更新失败:', error)
+      alert('更新失败，请稍后重试')
     }
   }
 
@@ -479,11 +520,16 @@ export default function AdminPage() {
                               }`}></div>
                               <div>
                                 <div className="font-medium text-gray-900">
-                                  {user.username}
+                                  {user.nickname || user.username}
                                 </div>
                                 <div className="text-sm text-gray-600">
                                   {user.email}
                                 </div>
+                                {user.nickname && user.nickname !== user.username && (
+                                  <div className="text-xs text-gray-500">
+                                    用户名: {user.username}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -498,6 +544,13 @@ export default function AdminPage() {
                           </div>
 
                           <div className="flex space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditNickname(user)}
+                            >
+                              编辑昵称
+                            </Button>
                             {user.isActive ? (
                               <Button
                                 variant="outline"
@@ -637,6 +690,57 @@ export default function AdminPage() {
                   )}
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {showEditDialog && editingUser && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4">编辑用户昵称</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      用户名
+                    </label>
+                    <Input
+                      value={editingUser.username}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      邮箱
+                    </label>
+                    <Input
+                      value={editingUser.email}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      昵称
+                    </label>
+                    <Input
+                      value={editNickname}
+                      onChange={(e) => setEditNickname(e.target.value)}
+                      placeholder="输入新昵称"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowEditDialog(false)}
+                  >
+                    取消
+                  </Button>
+                  <Button onClick={handleSaveNickname}>
+                    保存
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 

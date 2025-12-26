@@ -5,7 +5,7 @@ import { CreateUserData } from '@/lib/types/auth'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, username, password }: CreateUserData = body
+    const { email, username, password, nickname }: CreateUserData = body
 
     // 验证必填字段
     if (!email || !username || !password) {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 调用注册服务
-    const result = await signUp({ email, username, password })
+    const result = await signUp({ email, username, password, nickname })
 
     if (!result.success) {
       return NextResponse.json(
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
           id: result.user!.id,
           email: result.user!.email,
           username: result.user!.username,
+          nickname: result.user!.nickname,
           role: result.user!.role,
           createdAt: result.user!.createdAt
         }

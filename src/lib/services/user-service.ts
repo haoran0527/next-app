@@ -80,7 +80,8 @@ export async function createUser(userData: CreateUserData): Promise<AuthResult> 
         username: userData.username,
         password: hashedPassword,
         role: 'USER',
-        isActive: true
+        isActive: true,
+        nickname: userData.nickname
       }
     })
 
@@ -89,6 +90,7 @@ export async function createUser(userData: CreateUserData): Promise<AuthResult> 
       id: newUser.id,
       email: newUser.email,
       username: newUser.username,
+      nickname: newUser.nickname || undefined,
       role: newUser.role as 'USER' | 'ADMIN',
       isActive: newUser.isActive,
       createdAt: newUser.createdAt,
@@ -125,6 +127,7 @@ export async function getUserByUsername(username: string): Promise<User | null> 
       id: user.id,
       email: user.email,
       username: user.username,
+      nickname: user.nickname || undefined,
       role: user.role as 'USER' | 'ADMIN',
       isActive: user.isActive,
       createdAt: user.createdAt,
@@ -158,6 +161,7 @@ export async function getUserByUsernameOrEmail(identifier: string): Promise<User
       id: user.id,
       email: user.email,
       username: user.username,
+      nickname: user.nickname || undefined,
       role: user.role as 'USER' | 'ADMIN',
       isActive: user.isActive,
       createdAt: user.createdAt,
@@ -186,6 +190,7 @@ export async function getUserById(id: string): Promise<User | null> {
       id: user.id,
       email: user.email,
       username: user.username,
+      nickname: user.nickname || undefined,
       role: user.role as 'USER' | 'ADMIN',
       isActive: user.isActive,
       createdAt: user.createdAt,
@@ -263,6 +268,7 @@ export async function validateUserCredentials(identifier: string, password: stri
       id: user.id,
       email: user.email,
       username: user.username,
+      nickname: user.nickname || undefined,
       role: user.role as 'USER' | 'ADMIN',
       isActive: user.isActive,
       createdAt: user.createdAt,
