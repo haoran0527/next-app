@@ -1,0 +1,55 @@
+<view class="container">
+  <view class="header">
+    <view class="user-info">
+      <text class="welcome">欢迎回来</text>
+      <text class="username">{{userInfo.username}}</text>
+    </view>
+  </view>
+
+  <view class="balance-card">
+    <view class="balance-label">当前余额</view>
+    <view class="balance-amount">¥{{stats.balance}}</view>
+    <view class="balance-detail">
+      <view class="detail-item">
+        <text class="detail-label">收入</text>
+        <text class="detail-value income">+¥{{stats.totalIncome}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">支出</text>
+        <text class="detail-value expense">-¥{{stats.totalExpense}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">最近交易</text>
+      <text class="section-more" bindtap="goToStats">查看更多</text>
+    </view>
+    
+    <view class="transaction-list">
+      <view 
+        wx:if="{{recentTransactions.length === 0}}" 
+        class="empty"
+      >
+        <text>暂无交易记录</text>
+      </view>
+      
+      <view 
+        wx:for="{{recentTransactions}}" 
+        wx:key="id" 
+        class="transaction-item"
+        bindtap="goToDetail"
+        data-id="{{item.id}}"
+      >
+        <view class="transaction-info">
+          <text class="transaction-category">{{item.category}}</text>
+          <text class="transaction-date">{{formatDate(item.date)}}</text>
+        </view>
+        <view class="transaction-amount {{item.type === 'INCOME' ? 'income' : 'expense'}}">
+          {{item.type === 'INCOME' ? '+' : '-'}}¥{{item.amount}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

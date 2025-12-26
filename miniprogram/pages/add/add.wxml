@@ -1,0 +1,137 @@
+<view class="container">
+  <view class="ai-input-section">
+    <view class="input-card">
+      <view class="card-header">
+        <view class="header-text">
+          <text class="section-title">✨ AI智能记账</text>
+          <text class="section-subtitle">语言描述，自动识别金额、分类用自然</text>
+        </view>
+        <button 
+          class="btn-parse {{inputText ? 'active' : ''}}" 
+          bindtap="onParse" 
+          loading="{{parsing}}"
+          disabled="{{parsing || !inputText}}"
+        >
+          <text class="btn-icon">{{parsing ? '⏳' : '🤖'}}</text>
+          <text class="btn-text">{{parsing ? '解析中...' : 'AI解析'}}</text>
+        </button>
+      </view>
+      
+      <view class="input-wrapper">
+        <textarea 
+          class="ai-input" 
+          placeholder="例如：今天花了25元买午饭"
+          value="{{inputText}}"
+          bindinput="onInputChange"
+          maxlength="200"
+        />
+        <text class="char-count">{{inputText.length}}/200</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="form-section">
+    <view class="form-card">
+      <view class="form-header">
+        <text class="form-title">记账详情</text>
+      </view>
+
+      <view class="form-row">
+        <text class="label">交易类型</text>
+        <view class="type-selector">
+          <view 
+            class="type-item {{type === 'EXPENSE' ? 'active expense' : ''}}"
+            bindtap="onTypeSelect"
+            data-type="EXPENSE"
+          >
+            <text class="type-text">💰 支出</text>
+          </view>
+          <view 
+            class="type-item {{type === 'INCOME' ? 'active income' : ''}}"
+            bindtap="onTypeSelect"
+            data-type="INCOME"
+          >
+            <text class="type-text">💵 收入</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-divider"></view>
+
+      <view class="form-row amount-row">
+        <text class="label">金额</text>
+        <view class="amount-input-wrapper">
+          <text class="currency-symbol">¥</text>
+          <input 
+            class="amount-input" 
+            type="digit" 
+            placeholder="0.00" 
+            value="{{amount}}"
+            bindinput="onAmountInput"
+          />
+        </view>
+      </view>
+
+      <view class="form-divider"></view>
+
+      <view class="form-row">
+        <text class="label">分类</text>
+        <picker 
+          mode="selector" 
+          range="{{currentCategories}}" 
+          bindchange="onCategoryChange"
+        >
+          <view class="picker-value {{category ? 'selected' : ''}}">
+            <text class="picker-icon">{{category ? '📂' : '➕'}}</text>
+            <text class="picker-text">{{category || '请选择分类'}}</text>
+            <text class="arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-divider"></view>
+
+      <view class="form-row">
+        <text class="label">日期</text>
+        <picker 
+          mode="date" 
+          value="{{date}}" 
+          bindchange="onDateChange"
+        >
+          <view class="picker-value selected">
+            <text class="picker-icon">📅</text>
+            <text class="picker-text">{{date}}</text>
+            <text class="arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-divider"></view>
+
+      <view class="form-row full-width">
+        <text class="label">备注</text>
+        <view class="textarea-wrapper">
+          <textarea 
+            class="textarea" 
+            placeholder="添加备注（可选）" 
+            value="{{description}}"
+            bindinput="onDescriptionInput"
+            maxlength="100"
+          />
+          <text class="char-count">{{description.length}}/100</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-buttons">
+    <button class="btn-reset" bindtap="onReset">
+      <text class="btn-icon">🔄</text>
+      <text class="btn-text">重置</text>
+    </button>
+    <button class="btn-save" bindtap="onSave">
+      <text class="btn-icon">💾</text>
+      <text class="btn-text">保存</text>
+    </button>
+  </view>
+</view>

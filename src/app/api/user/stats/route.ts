@@ -148,7 +148,10 @@ async function handleGetUserStats(
 
     return NextResponse.json({
       success: true,
-      summary,
+      totalIncome: statsResult.data.totalIncome || 0,
+      totalExpense: statsResult.data.totalExpense || 0,
+      balance: statsResult.data.balance || 0,
+      transactionCount: statsResult.data.transactionCount || 0,
       categoryStats,
       monthlyStats
     })

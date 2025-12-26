@@ -1,0 +1,60 @@
+<view class="container">
+  <view class="register-card">
+    <view class="logo">
+      <text class="logo-text">创建账号</text>
+    </view>
+
+    <view class="form">
+      <view class="form-item">
+        <text class="label">用户名</text>
+        <input 
+          class="input" 
+          placeholder="请输入用户名" 
+          value="{{username}}"
+          bindinput="onUsernameInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">邮箱</text>
+        <input 
+          class="input" 
+          placeholder="请输入邮箱" 
+          value="{{email}}"
+          bindinput="onEmailInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">密码</text>
+        <input 
+          class="input" 
+          placeholder="请输入密码（至少6位）" 
+          password
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">确认密码</text>
+        <input 
+          class="input" 
+          placeholder="请再次输入密码" 
+          password
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+        />
+      </view>
+
+      <button 
+        class="btn-register" 
+        bindtap="onRegister" 
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{loading ? '注册中...' : '注册'}}
+      </button>
+    </view>
+  </view>
+</view>

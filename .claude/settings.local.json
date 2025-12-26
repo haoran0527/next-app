@@ -14,7 +14,24 @@
       "mcp__ssh-tool__fs_read",
       "mcp__ssh-tool__fs_list",
       "mcp__ssh-tool__fs_write",
-      "mcp__chrome-devtools__navigate_page"
+      "mcp__chrome-devtools__navigate_page",
+      "Bash(tar:*)",
+      "Bash(scp:*)",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "Bash(timeout:*)",
+      "mcp__ssh-tool__proc_sudo",
+      "mcp__chrome-devtools__close_page",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__get_console_message",
+      "mcp__ssh-tool__patch_apply",
+      "mcp__ssh-tool__ensure_linesInFile",
+      "mcp__ssh-tool__fs_stat",
+      "Bash(dir:*)",
+      "Bash(npm run build:*)",
+      "Bash(cross-env TURBOPACK=0 npm run build:*)",
+      "Bash(npx cross-env TURBOPACK=0 next build:*)",
+      "mcp__ssh-tool__os_detect"
     ]
   }
 }

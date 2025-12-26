@@ -82,6 +82,17 @@ tsconfig.tsbuildinfo
 prisma/migrations/
 !prisma/schema.prisma
 
+# 小程序相关（不需要部署）
+miniprogram/
+project.config.json
+project.private.config.json
+
+# 项目文档和规范（不需要部署）
+.kiro/
+.claude/
+CLAUDE.md
+项目结构说明.md
+
 # 其他
 .DS_Store
 Thumbs.db

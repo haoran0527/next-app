@@ -1,0 +1,64 @@
+<view class="container">
+  <view class="period-selector">
+    <picker 
+      mode="selector" 
+      range="{{periods}}" 
+      bindchange="onPeriodChange"
+      value="{{period === 'month' ? 0 : 1}}"
+    >
+      <view class="period-item">
+        <text>{{periods[period === 'month' ? 0 : 1]}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <view class="stats-cards">
+    <view class="stat-card income">
+      <text class="stat-label">总收入</text>
+      <text class="stat-value">¥{{stats.totalIncome}}</text>
+    </view>
+    <view class="stat-card expense">
+      <text class="stat-label">总支出</text>
+      <text class="stat-value">¥{{stats.totalExpense}}</text>
+    </view>
+    <view class="stat-card balance">
+      <text class="stat-label">结余</text>
+      <text class="stat-value {{stats.balance >= 0 ? 'positive' : 'negative'}}">¥{{stats.balance}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">支出分类统计</text>
+    </view>
+
+    <view wx:if="{{categoryStats.length === 0}}" class="empty">
+      <text>暂无数据</text>
+    </view>
+
+    <view wx:for="{{categoryStats}}" wx:key="category" class="category-item">
+      <view class="category-info">
+        <text class="category-name">{{item.category}}</text>
+        <text class="category-amount">¥{{item.total}}</text>
+      </view>
+      <view class="category-bar">
+        <view 
+          class="bar-fill" 
+          style="width: {{getCategoryPercentage(item.total)}}%"
+        ></view>
+      </view>
+      <view class="category-meta">
+        <text class="category-count">{{item.count}}笔</text>
+        <text class="category-percentage">{{getCategoryPercentage(item.total)}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="summary-card">
+    <view class="summary-row">
+      <text class="summary-label">交易笔数</text>
+      <text class="summary-value">{{stats.transactionCount}}笔</text>
+    </view>
+  </view>
+</view>

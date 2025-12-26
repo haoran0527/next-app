@@ -206,9 +206,23 @@ export class SecureDataAccess {
         prisma.transaction.count({ where: whereClause }),
         prisma.transaction.findMany({
           where: whereClause,
-          orderBy: { date: 'desc' },
+          orderBy: [
+            { date: 'desc' },
+            { createdAt: 'desc' }
+          ],
           take: secureFilters.limit,
-          skip: secureFilters.offset
+          skip: secureFilters.offset,
+          select: {
+            id: true,
+            userId: true,
+            amount: true,
+            type: true,
+            category: true,
+            description: true,
+            date: true,
+            createdAt: true,
+            updatedAt: true
+          }
         })
       ])
 
@@ -247,7 +261,18 @@ export class SecureDataAccess {
       }
 
       const transaction = await prisma.transaction.findUnique({
-        where: { id }
+        where: { id },
+        select: {
+          id: true,
+          userId: true,
+          amount: true,
+          type: true,
+          category: true,
+          description: true,
+          date: true,
+          createdAt: true,
+          updatedAt: true
+        }
       })
 
       if (!transaction) {
@@ -282,7 +307,18 @@ export class SecureDataAccess {
       }
 
       const transaction = await prisma.transaction.create({
-        data: transactionData
+        data: transactionData,
+        select: {
+          id: true,
+          userId: true,
+          amount: true,
+          type: true,
+          category: true,
+          description: true,
+          date: true,
+          createdAt: true,
+          updatedAt: true
+        }
       })
 
       return {
@@ -314,7 +350,18 @@ export class SecureDataAccess {
 
       const transaction = await prisma.transaction.update({
         where: { id },
-        data
+        data,
+        select: {
+          id: true,
+          userId: true,
+          amount: true,
+          type: true,
+          category: true,
+          description: true,
+          date: true,
+          createdAt: true,
+          updatedAt: true
+        }
       })
 
       return {

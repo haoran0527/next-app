@@ -5,21 +5,22 @@ import { LoginCredentials } from '@/lib/types/auth'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, rememberMe }: LoginCredentials & { rememberMe?: boolean } = body
+    const { email, username, password, rememberMe }: LoginCredentials & { username?: string; rememberMe?: boolean } = body
 
-    // 验证必填字段
-    if (!email || !password) {
+    // 验证必填字段 - 支持用户名或邮箱登录
+    const identifier = email || username
+    if (!identifier || !password) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: '用户名/邮箱和密码都是必填项' 
+        {
+          success: false,
+          error: '用户名/邮箱和密码都是必填项'
         },
         { status: 400 }
       )
     }
 
-    // 调用登录服务（现在支持用户名或邮箱）
-    const result = await signIn({ email, password }, rememberMe || false)
+    // 调用登录服务（支持用户名或邮箱）
+    const result = await signIn({ email: identifier, password }, rememberMe || false)
 
     if (!result.success) {
       return NextResponse.json(

@@ -1,0 +1,36 @@
+<view class="container" wx:if="{{!loading && transaction}}">
+  <view class="amount-card {{transaction.type === 'INCOME' ? 'income' : 'expense'}}">
+    <text class="amount-label">{{transaction.type === 'INCOME' ? '收入' : '支出'}}</text>
+    <text class="amount-value">{{transaction.type === 'INCOME' ? '+' : '-'}}¥{{transaction.amount}}</text>
+  </view>
+
+  <view class="detail-section">
+    <view class="detail-item">
+      <text class="detail-label">分类</text>
+      <text class="detail-value">{{transaction.category}}</text>
+    </view>
+
+    <view class="detail-item">
+      <text class="detail-label">日期</text>
+      <text class="detail-value">{{transaction.formattedDate}}</text>
+    </view>
+
+    <view class="detail-item" wx:if="{{transaction.description}}">
+      <text class="detail-label">备注</text>
+      <text class="detail-value">{{transaction.description}}</text>
+    </view>
+
+    <view class="detail-item">
+      <text class="detail-label">创建时间</text>
+      <text class="detail-value">{{transaction.formattedCreatedAt}}</text>
+    </view>
+  </view>
+
+  <view class="action-buttons">
+    <button class="btn-delete" bindtap="onDelete">删除</button>
+  </view>
+</view>
+
+<view class="container loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>

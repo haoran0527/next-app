@@ -3,7 +3,7 @@ import { CreateTransactionData, TransactionType } from '../types/transaction'
 
 function getOpenAIConfig() {
   const apiKey = process.env.OPENAI_API_KEY
-  const baseUrl = process.env.OPENAI_BASE_URL || 'https://dashscope.aliyuncs.com/compatible-mode/v1'
+  const baseUrl = process.env.OPENAI_BASE_URL || 'https://api.deepseek.com'
   return { apiKey, baseUrl }
 }
 
@@ -59,7 +59,7 @@ async function callOpenAI(prompt: string): Promise<string> {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'qwen-plus',
+      model: 'deepseek-chat',
       messages: [
         {
           role: 'system',
@@ -197,7 +197,7 @@ export async function getTransactionSuggestions(
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'qwen-plus',
+        model: 'deepseek-chat',
         messages: [
           {
             role: 'system',
