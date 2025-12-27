@@ -3,14 +3,11 @@ const { get } = require('../../utils/request.js')
 
 Page({
   data: {
-    stats: {
-      totalIncome: 0,
-      totalExpense: 0,
-      balance: 0,
-      transactionCount: 0
-    },
-    monthlyStats: [],
-    categoryStats: [],
+    totalIncome: 0,
+    totalExpense: 0,
+    balance: 0,
+    incomeCategories: [],
+    expenseCategories: [],
     period: 'month',
     periods: ['本月', '本年'],
     loading: false
@@ -56,38 +53,27 @@ Page({
       }
 
       const res = await get('/user/stats', params)
-      
+
+      console.log('获取到的统计数据:', res)
+      console.log('收入分类:', res.incomeCategories)
+      console.log('支出分类:', res.expenseCategories)
+
       this.setData({
-        stats: {
-          totalIncome: res.totalIncome || 0,
-          totalExpense: res.totalExpense || 0,
-          balance: res.balance || 0,
-          transactionCount: res.transactionCount || 0
-        }
+        totalIncome: res.totalIncome || 0,
+        totalExpense: res.totalExpense || 0,
+        balance: res.balance || 0,
+        incomeCategories: res.incomeCategories || [],
+        expenseCategories: res.expenseCategories || []
       })
 
-      this.loadCategoryStats(params)
+      console.log('页面data更新后:', {
+        incomeCategories: this.data.incomeCategories,
+        expenseCategories: this.data.expenseCategories
+      })
     } catch (error) {
       console.error('加载统计数据失败:', error)
     } finally {
       this.setData({ loading: false })
     }
-  },
-
-  async loadCategoryStats(params) {
-    try {
-      const res = await get('/user/stats', { ...params, groupBy: 'category' })
-      this.setData({
-        categoryStats: res.categoryStats || []
-      })
-    } catch (error) {
-      console.error('加载分类统计失败:', error)
-    }
-  },
-
-  getCategoryPercentage(amount) {
-    const total = this.data.stats.totalExpense
-    if (total === 0) return 0
-    return ((amount / total) * 100).toFixed(1)
   }
 })

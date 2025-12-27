@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { protectAdminApi } from '@/lib/middleware/api-protection'
 import { User } from '@/lib/types/auth'

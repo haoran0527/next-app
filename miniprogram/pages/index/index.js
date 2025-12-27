@@ -18,20 +18,38 @@ Page({
     if (!app.checkLogin()) {
       return
     }
+
+    // 注册用户信息更新回调
+    app.onUserInfoUpdate(this.onUserInfoUpdate)
+
     this.loadUserInfo()
     this.loadStats()
     this.loadRecentTransactions()
   },
 
+  onUnload() {
+    // 移除用户信息更新回调
+    app.offUserInfoUpdate(this.onUserInfoUpdate)
+  },
+
   onShow() {
     if (app.getToken()) {
+      console.log('首页 onShow 触发')
+      this.loadUserInfo()
       this.loadStats()
       this.loadRecentTransactions()
     }
   },
 
+  // 用户信息更新回调
+  onUserInfoUpdate(userInfo) {
+    console.log('首页收到用户信息更新通知:', userInfo)
+    this.setData({ userInfo })
+  },
+
   loadUserInfo() {
     const userInfo = app.getUserInfo()
+    console.log('首页 loadUserInfo 获取到的用户信息:', userInfo)
     this.setData({ userInfo })
   },
 

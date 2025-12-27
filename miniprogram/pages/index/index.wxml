@@ -2,7 +2,7 @@
   <view class="header">
     <view class="user-info">
       <text class="welcome">欢迎回来</text>
-      <text class="username">{{userInfo.username}}</text>
+      <text class="username">{{userInfo.nickname || userInfo.username}}</text>
     </view>
   </view>
 

@@ -33,7 +33,19 @@
       "Bash(npx cross-env TURBOPACK=0 next build:*)",
       "mcp__ssh-tool__os_detect",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(npm run lint)",
+      "Bash(cat:*)",
+      "Bash(npm run db:generate:*)",
+      "Bash(node:*)",
+      "Bash(npx tsx:*)",
+      "mcp__ssh-tool__fs_mkdirp",
+      "mcp__ssh-tool__fs_rmrf",
+      "Bash(ssh:*)",
+      "Bash(bash:*)",
+      "Bash(cmd:*)",
+      "Bash(powershell:*)"
     ]
   }
 }

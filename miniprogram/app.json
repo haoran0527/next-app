@@ -7,7 +7,8 @@
     "pages/list/list",
     "pages/detail/detail",
     "pages/stats/stats",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/admin/ai-models/ai-models"
   ],
   "window": {
     "backgroundTextStyle": "light",

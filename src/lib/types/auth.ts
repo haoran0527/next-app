@@ -4,7 +4,7 @@ export interface User {
   id: string
   email: string
   username: string
-  nickname?: string
+  nickname: string | null
   role: 'USER' | 'ADMIN'
   isActive: boolean
   createdAt: Date
@@ -23,7 +23,7 @@ export interface CreateUserData {
   email: string
   username: string
   password: string
-  nickname?: string
+  nickname: string | null
 }
 
 export interface LoginCredentials {

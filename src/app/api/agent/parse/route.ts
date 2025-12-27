@@ -19,6 +19,8 @@ async function handleParseTransaction(
     const body = await request.json()
     const { input } = body
 
+    console.log('[AI Parse] 收到解析请求:', { input, body })
+
     if (!input || typeof input !== 'string') {
       return NextResponse.json(
         { error: '请提供有效的输入文本' },
@@ -26,7 +28,9 @@ async function handleParseTransaction(
       )
     }
 
+    console.log('[AI Parse] 开始调用 AI 解析...')
     const result = await parseNaturalLanguageToTransaction(input)
+    console.log('[AI Parse] AI 解析结果:', result)
 
     if (!result.success) {
       return NextResponse.json(

@@ -22,7 +22,7 @@ interface User {
   id: string
   email: string
   username: string
-  nickname?: string
+  nickname: string | null
   role: string
   createdAt: string
 }

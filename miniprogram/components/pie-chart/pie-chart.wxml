@@ -1,0 +1,7 @@
+<view class="pie-chart-container">
+  <canvas
+    canvas-id="{{canvasId}}"
+    class="pie-chart-canvas"
+    style="width: 350rpx; height: 350rpx;"
+  ></canvas>
+</view>

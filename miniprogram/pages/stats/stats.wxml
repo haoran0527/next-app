@@ -1,64 +1,110 @@
 <view class="container">
+  <!-- 时间选择器 -->
   <view class="period-selector">
-    <picker 
-      mode="selector" 
-      range="{{periods}}" 
+    <picker
+      mode="selector"
+      range="{{periods}}"
       bindchange="onPeriodChange"
       value="{{period === 'month' ? 0 : 1}}"
     >
       <view class="period-item">
-        <text>{{periods[period === 'month' ? 0 : 1]}}</text>
-        <text class="arrow">›</text>
+        <text class="period-text">{{periods[period === 'month' ? 0 : 1]}}</text>
+        <text class="arrow">▼</text>
       </view>
     </picker>
   </view>
 
-  <view class="stats-cards">
-    <view class="stat-card income">
-      <text class="stat-label">总收入</text>
-      <text class="stat-value">¥{{stats.totalIncome}}</text>
+  <!-- 总计卡片 -->
+  <view class="summary-cards">
+    <view class="summary-card income-card">
+      <text class="summary-label">总收入</text>
+      <text class="summary-amount income-amount">¥{{totalIncome}}</text>
     </view>
-    <view class="stat-card expense">
-      <text class="stat-label">总支出</text>
-      <text class="stat-value">¥{{stats.totalExpense}}</text>
+    <view class="summary-card expense-card">
+      <text class="summary-label">总支出</text>
+      <text class="summary-amount expense-amount">¥{{totalExpense}}</text>
     </view>
-    <view class="stat-card balance">
-      <text class="stat-label">结余</text>
-      <text class="stat-value {{stats.balance >= 0 ? 'positive' : 'negative'}}">¥{{stats.balance}}</text>
+    <view class="summary-card {{balance >= 0 ? 'balance-positive' : 'balance-negative'}}">
+      <text class="summary-label">总结余</text>
+      <text class="summary-amount {{balance >= 0 ? 'positive' : 'negative'}}">¥{{balance}}</text>
     </view>
   </view>
 
+  <!-- 收入分类 -->
   <view class="section">
     <view class="section-header">
-      <text class="section-title">支出分类统计</text>
+      <view class="section-icon income-icon">¥</view>
+      <text class="section-title income-title">收入分布</text>
     </view>
 
-    <view wx:if="{{categoryStats.length === 0}}" class="empty">
-      <text>暂无数据</text>
+    <view wx:if="{{incomeCategories.length === 0}}" class="empty">
+      <text class="empty-icon">📊</text>
+      <text class="empty-text">暂无收入记录</text>
     </view>
 
-    <view wx:for="{{categoryStats}}" wx:key="category" class="category-item">
-      <view class="category-info">
-        <text class="category-name">{{item.category}}</text>
-        <text class="category-amount">¥{{item.total}}</text>
-      </view>
-      <view class="category-bar">
-        <view 
-          class="bar-fill" 
-          style="width: {{getCategoryPercentage(item.total)}}%"
-        ></view>
-      </view>
-      <view class="category-meta">
-        <text class="category-count">{{item.count}}笔</text>
-        <text class="category-percentage">{{getCategoryPercentage(item.total)}}%</text>
+    <view wx:else class="category-list">
+      <view wx:for="{{incomeCategories}}" wx:key="category" class="category-item">
+        <view class="category-header">
+          <view class="category-info">
+            <view class="category-dot income-dot"></view>
+            <text class="category-name">{{item.category}}</text>
+          </view>
+          <text class="category-amount income-amount">¥{{item.total}}</text>
+        </view>
+
+        <view class="category-bar-container">
+          <view class="category-bar">
+            <view
+              class="bar-fill income-bar"
+              style="width: {{item.percentage}}%"
+            ></view>
+          </view>
+          <text class="bar-percentage">{{item.percentage}}%</text>
+        </view>
+
+        <view class="category-footer">
+          <text class="category-count">{{item.count}} 笔交易</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <view class="summary-card">
-    <view class="summary-row">
-      <text class="summary-label">交易笔数</text>
-      <text class="summary-value">{{stats.transactionCount}}笔</text>
+  <!-- 支出分类 -->
+  <view class="section">
+    <view class="section-header">
+      <view class="section-icon expense-icon">¥</view>
+      <text class="section-title expense-title">支出分布</text>
+    </view>
+
+    <view wx:if="{{expenseCategories.length === 0}}" class="empty">
+      <text class="empty-icon">📊</text>
+      <text class="empty-text">暂无支出记录</text>
+    </view>
+
+    <view wx:else class="category-list">
+      <view wx:for="{{expenseCategories}}" wx:key="category" class="category-item">
+        <view class="category-header">
+          <view class="category-info">
+            <view class="category-dot expense-dot"></view>
+            <text class="category-name">{{item.category}}</text>
+          </view>
+          <text class="category-amount expense-amount">¥{{item.total}}</text>
+        </view>
+
+        <view class="category-bar-container">
+          <view class="category-bar">
+            <view
+              class="bar-fill expense-bar"
+              style="width: {{item.percentage}}%"
+            ></view>
+          </view>
+          <text class="bar-percentage">{{item.percentage}}%</text>
+        </view>
+
+        <view class="category-footer">
+          <text class="category-count">{{item.count}} 笔交易</text>
+        </view>
+      </view>
     </view>
   </view>
 </view>

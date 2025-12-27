@@ -1,11 +1,14 @@
 <view class="container">
   <view class="header">
     <view class="avatar">
-      <text class="avatar-text">{{userInfo.username ? userInfo.username.charAt(0).toUpperCase() : 'U'}}</text>
+      <text class="avatar-text">{{userInfo.nickname ? userInfo.nickname.charAt(0).toUpperCase() : (userInfo.username ? userInfo.username.charAt(0).toUpperCase() : 'U')}}</text>
     </view>
     <view class="user-info">
-      <text class="username">{{userInfo.username}}</text>
+      <text class="username">{{userInfo.nickname || userInfo.username}}</text>
       <text class="email">{{userInfo.email}}</text>
+    </view>
+    <view class="edit-icon" bindtap="onEditNickname">
+      <text>✏️</text>
     </view>
   </view>
 
@@ -27,6 +30,14 @@
   </view>
 
   <view class="menu-section">
+    <view wx:if="{{userInfo.role === 'ADMIN'}}" class="menu-item" bindtap="onAIModels">
+      <view class="menu-left">
+        <text class="menu-icon">🤖</text>
+        <text class="menu-title">AI模型配置</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
     <view class="menu-item" bindtap="onAbout">
       <view class="menu-left">
         <text class="menu-icon">ℹ️</text>
@@ -46,5 +57,24 @@
 
   <view class="footer">
     <text class="footer-text">智能记账 v1.0.0</text>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showEditNicknameDialog}}" bindtap="closeEditNicknameDialog">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">修改昵称</text>
+      </view>
+      <view class="modal-body">
+        <input class="nickname-input" 
+               value="{{editNickname}}" 
+               bindinput="onNicknameInput" 
+               placeholder="请输入新昵称" 
+               maxlength="50" />
+      </view>
+      <view class="modal-footer">
+        <button class="modal-btn cancel-btn" bindtap="closeEditNicknameDialog">取消</button>
+        <button class="modal-btn confirm-btn" bindtap="saveNickname">保存</button>
+      </view>
+    </view>
   </view>
 </view>

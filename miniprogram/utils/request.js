@@ -66,5 +66,6 @@ module.exports = {
   get,
   post,
   put,
+  del,
   delete: del
 }

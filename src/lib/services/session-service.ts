@@ -84,6 +84,7 @@ export async function validateSession(token: string): Promise<{ user: User; sess
       id: sessionWithUser.user.id,
       email: sessionWithUser.user.email,
       username: sessionWithUser.user.username,
+      nickname: sessionWithUser.user.nickname,
       role: sessionWithUser.user.role as 'USER' | 'ADMIN',
       isActive: sessionWithUser.user.isActive,
       createdAt: sessionWithUser.user.createdAt,

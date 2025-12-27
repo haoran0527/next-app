@@ -36,10 +36,9 @@
         {{loading ? '登录中...' : '登录'}}
       </button>
 
-      <button 
-        class="btn-wechat" 
-        open-type="getUserInfo" 
-        bindgetuserinfo="onWechatLogin"
+      <button
+        class="btn-wechat"
+        bindtap="onWechatLogin"
         loading="{{wechatLoading}}"
         disabled="{{wechatLoading}}"
       >

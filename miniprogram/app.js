@@ -2,22 +2,47 @@ App({
   globalData: {
     userInfo: null,
     token: null,
-    baseUrl: 'https://www.love-haoran.cn/note/api'
+    baseUrl: 'https://www.love-haoran.cn/note/api',
+    userInfoUpdateCallbacks: []
   },
 
   onLaunch() {
     const token = wx.getStorageSync('token')
     const userInfo = wx.getStorageSync('userInfo')
-    
+
     if (token) {
       this.globalData.token = token
     }
-    
+
     if (userInfo) {
       this.globalData.userInfo = userInfo
     }
 
     this.wechatAutoLogin()
+  },
+
+  // 注册用户信息更新回调
+  onUserInfoUpdate(callback) {
+    this.globalData.userInfoUpdateCallbacks.push(callback)
+  },
+
+  // 移除用户信息更新回调
+  offUserInfoUpdate(callback) {
+    const index = this.globalData.userInfoUpdateCallbacks.indexOf(callback)
+    if (index > -1) {
+      this.globalData.userInfoUpdateCallbacks.splice(index, 1)
+    }
+  },
+
+  // 触发用户信息更新
+  notifyUserInfoUpdate(userInfo) {
+    this.globalData.userInfoUpdateCallbacks.forEach(callback => {
+      try {
+        callback(userInfo)
+      } catch (error) {
+        console.error('执行用户信息更新回调失败:', error)
+      }
+    })
   },
 
   wechatAutoLogin() {

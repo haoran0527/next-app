@@ -67,7 +67,7 @@ Page({
     })
   },
 
-  async onWechatLogin(e) {
+  async onWechatLogin() {
     const { wechatLoading } = this.data
 
     if (wechatLoading) {
@@ -77,54 +77,77 @@ Page({
     this.setData({ wechatLoading: true })
 
     try {
-      wx.login({
-        success: async (res) => {
-          if (res.code) {
-            try {
-              const loginRes = await post('/auth/wechat-login', { 
-                code: res.code,
-                userInfo: e.detail.userInfo 
-              })
-              
-              app.setToken(loginRes.sessionToken)
-              app.setUserInfo(loginRes.user)
-
-              wx.showToast({
-                title: '登录成功',
-                icon: 'success'
-              })
-
-              setTimeout(() => {
-                wx.switchTab({
-                  url: '/pages/index/index'
-                })
-              }, 1500)
-            } catch (error) {
-              console.error('微信登录失败:', error)
-              wx.showToast({
-                title: '登录失败，请重试',
-                icon: 'none'
-              })
-            }
-          } else {
-            wx.showToast({
-              title: '获取登录凭证失败',
-              icon: 'none'
-            })
-          }
-          this.setData({ wechatLoading: false })
-        },
-        fail: (err) => {
-          console.error('wx.login 失败:', err)
-          wx.showToast({
-            title: '登录失败，请重试',
-            icon: 'none'
-          })
-          this.setData({ wechatLoading: false })
-        }
+      // 先获取登录凭证
+      const loginRes = await new Promise((resolve, reject) => {
+        wx.login({
+          success: resolve,
+          fail: reject
+        })
       })
+
+      if (!loginRes || !loginRes.code) {
+        wx.showToast({
+          title: '获取登录凭证失败',
+          icon: 'none'
+        })
+        this.setData({ wechatLoading: false })
+        return
+      }
+
+      // 再获取用户信息（可能会被用户拒绝）
+      let userInfo = null
+
+      try {
+        const profileRes = await new Promise((resolve, reject) => {
+          wx.getUserProfile({
+            desc: '用于完善用户资料',
+            success: resolve,
+            fail: reject
+          })
+        })
+
+        if (profileRes && profileRes.userInfo) {
+          userInfo = {
+            nickName: profileRes.userInfo.nickName,
+            avatarUrl: profileRes.userInfo.avatarUrl
+          }
+          console.log('获取用户信息成功:', userInfo)
+        }
+      } catch (err) {
+        console.log('用户拒绝授权或获取失败，将使用默认昵称:', err)
+      }
+
+      // 发送登录请求
+      const requestData = {
+        code: loginRes.code
+      }
+
+      if (userInfo) {
+        requestData.userInfo = userInfo
+      }
+
+      const apiRes = await post('/auth/wechat-login', requestData)
+
+      app.setToken(apiRes.sessionToken)
+      app.setUserInfo(apiRes.user)
+
+      wx.showToast({
+        title: '登录成功',
+        icon: 'success'
+      })
+
+      setTimeout(() => {
+        wx.switchTab({
+          url: '/pages/index/index'
+        })
+      }, 1500)
     } catch (error) {
-      console.error('微信登录错误:', error)
+      console.error('微信登录失败:', error)
+      wx.showToast({
+        title: '登录失败，请重试',
+        icon: 'none'
+      })
+    } finally {
       this.setData({ wechatLoading: false })
     }
   }

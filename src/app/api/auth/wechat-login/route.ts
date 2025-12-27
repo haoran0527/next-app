@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSession } from '@/lib/services/session-service'
+import { generateNickname } from '@/lib/services/agent-service'
 
 interface WeChatLoginRequest {
   code: string
@@ -68,9 +69,18 @@ export async function POST(request: NextRequest) {
       const randomSuffix = Math.floor(Math.random() * 10000)
       const username = `wx_user_${timestamp}_${randomSuffix}`
       const email = `wx_${openid.substring(0, 8)}@wechat.miniapp`
-      
+
       // 生成随机密码（微信用户不会使用密码登录）
       const password = Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
+
+      // 确定昵称：优先使用微信昵称，如果没有则使用大模型生成
+      let nickname = userInfo?.nickName
+
+      if (!nickname) {
+        console.log('未获取到微信昵称，使用大模型生成诗意昵称')
+        nickname = await generateNickname()
+        console.log('生成的昵称:', nickname)
+      }
 
       user = await prisma.user.create({
         data: {
@@ -80,11 +90,11 @@ export async function POST(request: NextRequest) {
           wechatOpenId: openid,
           role: 'USER',
           isActive: true,
-          nickname: userInfo?.nickName
+          nickname: nickname
         }
       })
 
-      console.log('创建新微信用户:', user.id)
+      console.log('创建新微信用户:', user.id, '昵称:', nickname)
     }
 
     // 创建会话
