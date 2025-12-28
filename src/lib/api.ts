@@ -38,5 +38,11 @@ export function buildApiUrl(path: string): string {
  */
 export async function apiFetch(path: string, options?: RequestInit): Promise<Response> {
   const url = buildApiUrl(path)
-  return fetch(url, options)
+  return fetch(url, {
+    ...options,
+    credentials: 'include', // 重要：确保发送cookies以维持会话
+    headers: {
+      ...options?.headers,
+    },
+  })
 }

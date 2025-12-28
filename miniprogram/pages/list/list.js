@@ -130,8 +130,6 @@ Page({
         if (dateValue) {
           try {
             const date = new Date(dateValue)
-            console.log('Date对象:', date, 'isValid:', !isNaN(date.getTime()))
-
             if (!isNaN(date.getTime())) {
               // 格式化日期：YYYY-MM-DD
               const year = date.getFullYear()
@@ -144,8 +142,6 @@ Page({
               const minute = String(date.getMinutes()).padStart(2, '0')
               formattedTime = `${month}月${day}日 ${hour}:${minute}`
 
-              console.log('格式化后的时间:', formattedTime)
-
               // 判断是否是今天
               const today = new Date()
               isTodayItem = date.getFullYear() === today.getFullYear() &&
@@ -156,8 +152,6 @@ Page({
             console.error('日期解析错误:', error)
           }
         }
-
-        console.log('最终 formattedTime:', formattedTime)
 
         return {
           ...item,

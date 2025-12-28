@@ -7,6 +7,7 @@
     "pages/list/list",
     "pages/detail/detail",
     "pages/stats/stats",
+    "pages/family/family",
     "pages/profile/profile",
     "pages/admin/ai-models/ai-models"
   ],

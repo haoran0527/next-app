@@ -168,10 +168,7 @@ export async function generateNickname(): Promise<string> {
           }
         ],
         temperature: 0.8,
-        max_tokens: 50,
-        thinking: {
-          type: 'disabled'
-        }
+        max_tokens: 50
       })
     })
 
@@ -251,10 +248,7 @@ async function callOpenAI(prompt: string): Promise<string> {
         }
       ],
       temperature: 0.1,
-      max_tokens: 1500,
-      thinking: {
-        type: 'disabled'
-      }
+      max_tokens: 1500
     })
   })
 
@@ -475,10 +469,7 @@ export async function getTransactionSuggestions(
           }
         ],
         temperature: 0.7,
-        max_tokens: 300,
-        thinking: {
-          type: 'disabled'
-        }
+        max_tokens: 300
       })
     })
 

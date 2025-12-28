@@ -1,5 +1,11 @@
 // 认证相关的类型定义
 
+export interface FamilyGroupContext {
+  groupId: string | null
+  isMember: boolean
+  role?: 'CREATOR' | 'MEMBER'
+}
+
 export interface User {
   id: string
   email: string
@@ -9,6 +15,7 @@ export interface User {
   isActive: boolean
   createdAt: Date
   updatedAt: Date
+  familyGroup?: FamilyGroupContext
 }
 
 export interface Session {

@@ -25,7 +25,9 @@ model User {
   // 关联关系
   transactions Transaction[]
   sessions     Session[]
-  
+  familyMembers FamilyMember[]
+  createdFamilyGroups FamilyGroup[] @relation("FamilyGroupCreator")
+
   @@map("users")
 }
 
@@ -105,4 +107,42 @@ model AIModel {
 
   @@map("ai_models")
   @@index([isActive])
+}
+
+// 家庭组成员角色枚举
+enum MemberRole {
+  CREATOR
+  MEMBER
+}
+
+// 家庭组模型
+model FamilyGroup {
+  id          String   @id @default(cuid())
+  name        String
+  creatorId   String
+  inviteCode  String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator  User           @relation("FamilyGroupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members  FamilyMember[]
+
+  @@map("family_groups")
+  @@index([inviteCode])
+  @@index([creatorId])
+}
+
+// 家庭组成员模型
+model FamilyMember {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  groupId   String
+  role      MemberRole @default(MEMBER)
+  joinedAt  DateTime   @default(now())
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group FamilyGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("family_members")
+  @@index([groupId])
 }

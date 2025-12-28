@@ -12,6 +12,15 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // Miniprogram uses CommonJS
+    'miniprogram/**',
+    // Debug and test scripts
+    'check-*.js',
+    'check-*.ts',
+    'cleanup-*.js',
+    'debug-*.js',
+    'test-*.js',
+    'verify-*.js',
   ]),
 ])
 

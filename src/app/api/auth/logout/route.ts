@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { signOut } from '@/lib/services/auth-service'
+import { getDeleteCookieOptions } from '@/lib/cookie-config'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,13 +31,7 @@ export async function POST(request: NextRequest) {
 
     // 清除会话Cookie
     if (success) {
-      response.cookies.set('session-token', '', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 0,
-        path: '/'
-      })
+      response.cookies.set('session-token', '', getDeleteCookieOptions())
     }
 
     return response

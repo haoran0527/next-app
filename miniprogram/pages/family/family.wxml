@@ -1,0 +1,240 @@
+<!--pages/family/family.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="header-content">
+      <text class="title">家庭组</text>
+      <text class="subtitle">与家庭成员共享账单</text>
+    </view>
+  </view>
+
+  <!-- 未加入家庭组 -->
+  <view wx:if="{{!familyGroup}}" class="no-family">
+    <view class="empty-icon">👨‍👩‍👧‍👦</view>
+    <view class="empty-title">您还未加入任何家庭组</view>
+    <view class="empty-desc">创建或加入家庭组，与家庭成员一起管理财务</view>
+
+    <view class="action-buttons">
+      <button class="btn-primary" bindtap="showCreateModal">
+        <text class="btn-icon">➕</text>
+        <text>创建家庭组</text>
+      </button>
+      <button class="btn-secondary" bindtap="showJoinModal">
+        <text class="btn-icon">🔗</text>
+        <text>加入家庭组</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 已加入家庭组 -->
+  <view wx:else class="has-family">
+    <!-- 家庭组信息 -->
+    <view class="family-info">
+      <view class="info-header">
+        <view>
+          <text class="family-name">{{familyGroup.name}}</text>
+          <text class="family-date">创建于 {{familyGroup.createdAt}}</text>
+        </view>
+        <button class="btn-more" bindtap="showActions">•••</button>
+      </view>
+
+      <view class="invite-section">
+        <view class="invite-label">邀请码</view>
+        <view class="invite-code-box">
+          <text class="invite-code">{{familyGroup.inviteCode}}</text>
+          <button class="btn-copy" bindtap="copyInviteCode">
+            {{copied ? '已复制' : '复制'}}
+          </button>
+        </view>
+        <view class="invite-desc">分享此邀请码给家庭成员</view>
+      </view>
+
+      <view class="member-count">
+        <text class="count-number">{{familyGroup.members.length}}</text>
+        <text class="count-label">位成员</text>
+      </view>
+    </view>
+
+    <!-- 统计数据 -->
+    <view wx:if="{{stats}}" class="stats-section">
+      <view class="section-title">财务统计</view>
+
+      <view class="stats-cards">
+        <!-- 个人统计 -->
+        <view class="stat-card">
+          <view class="stat-title">我的统计</view>
+          <view class="stat-item">
+            <text class="stat-label">总收入</text>
+            <text class="stat-value income">¥{{stats.personalStats.totalIncome}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-label">总支出</text>
+            <text class="stat-value expense">¥{{stats.personalStats.totalExpense}}</text>
+          </view>
+          <view class="stat-item total">
+            <text class="stat-label">余额</text>
+            <text class="stat-value {{stats.personalStats.balance >= 0 ? 'positive' : 'negative'}}">
+              ¥{{stats.personalStats.balance}}
+            </text>
+          </view>
+        </view>
+
+        <!-- 家庭统计 -->
+        <view class="stat-card highlight">
+          <view class="stat-title">家庭总计</view>
+          <view class="stat-item">
+            <text class="stat-label">总收入</text>
+            <text class="stat-value income">¥{{stats.familyStats.totalIncome}}</text>
+          </view>
+          <view class="stat-item">
+            <text class="stat-label">总支出</text>
+            <text class="stat-value expense">¥{{stats.familyStats.totalExpense}}</text>
+          </view>
+          <view class="stat-item total">
+            <text class="stat-label">余额</text>
+            <text class="stat-value {{stats.familyStats.balance >= 0 ? 'positive' : 'negative'}}">
+              ¥{{stats.familyStats.balance}}
+            </text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 成员统计 -->
+      <view class="member-stats">
+        <view class="member-stats-title">成员统计</view>
+        <view class="member-stats-list">
+          <view class="member-stat-item" wx:for="{{stats.memberStats}}" wx:key="userId">
+            <view class="member-info">
+              <text class="member-name">{{item.nickname || item.username}}</text>
+              <text class="crown" wx:if="{{item.userId === familyGroup.creatorId}}">👑</text>
+            </view>
+            <view class="member-values">
+              <text class="value-income">¥{{item.totalIncome}}</text>
+              <text class="value-expense">¥{{item.totalExpense}}</text>
+              <text class="value-balance {{item.balance >= 0 ? 'positive' : 'negative'}}">
+                ¥{{item.balance}}
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 成员列表 -->
+    <view class="members-section">
+      <view class="section-title">家庭成员 ({{familyGroup.members.length}})</view>
+      <view class="member-list">
+        <view class="member-item" wx:for="{{familyGroup.members}}" wx:key="user.id">
+          <view class="member-avatar">
+            {{item.user.nickname ? item.user.nickname[0] : item.user.username[0]}}
+          </view>
+          <view class="member-detail">
+            <view class="member-name-line">
+              <text class="member-name">{{item.user.nickname || item.user.username}}</text>
+              <text class="crown" wx:if="{{item.role === 'CREATOR'}}">👑</text>
+              <text class="me-tag" wx:if="{{item.user.id === currentUser.id}}">我</text>
+            </view>
+            <view class="member-role">
+              <text wx:if="{{item.role === 'CREATOR'}}">创建者</text>
+              <text class="join-date">加入于 {{item.joinedAt}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 创建家庭组弹窗 -->
+  <view class="modal {{showCreateDialog ? 'show' : ''}}" bindtap="hideCreateModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">创建家庭组</text>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">家庭组名称</text>
+          <input
+            class="form-input"
+            placeholder="例如：张家、温馨小家"
+            value="{{groupName}}"
+            bindinput="onGroupNameInput"
+            maxlength="100"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="hideCreateModal">取消</button>
+        <button
+          class="btn-confirm"
+          bindtap="handleCreateGroup"
+          disabled="{{submitting || !groupName}}"
+        >
+          {{submitting ? '创建中...' : '创建'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加入家庭组弹窗 -->
+  <view class="modal {{showJoinDialog ? 'show' : ''}}" bindtap="hideJoinModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">加入家庭组</text>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">邀请码</text>
+          <input
+            class="form-input"
+            placeholder="请输入8位邀请码"
+            value="{{inviteCode}}"
+            bindinput="onInviteCodeInput"
+            maxlength="8"
+          />
+          <text class="form-hint">请向家庭成员索取邀请码</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="hideJoinModal">取消</button>
+        <button
+          class="btn-confirm"
+          bindtap="handleJoinGroup"
+          disabled="{{submitting || inviteCode.length !== 8}}"
+        >
+          {{submitting ? '加入中...' : '加入'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作菜单 -->
+  <view class="action-sheet {{showActionSheet ? 'show' : ''}}" bindtap="hideActions">
+    <view class="action-sheet-content" catchtap="stopPropagation">
+      <button
+        wx:if="{{familyGroup.creatorId === currentUser.id}}"
+        class="action-btn danger"
+        bindtap="handleDissolve"
+      >
+        <text class="action-icon">🗑️</text>
+        <text>解散家庭组</text>
+      </button>
+      <button
+        wx:else
+        class="action-btn"
+        bindtap="handleLeave"
+      >
+        <text class="action-icon">🚪</text>
+        <text>退出家庭组</text>
+      </button>
+      <button class="action-btn cancel" bindtap="hideActions">取消</button>
+    </view>
+  </view>
+
+  <!-- 返回按钮 -->
+  <view class="back-nav">
+    <navigator open-type="switchTab" url="/pages/index/index" class="back-btn">
+      <text class="back-icon">←</text>
+      <text class="back-text">返回记账</text>
+    </navigator>
+  </view>
+</view>

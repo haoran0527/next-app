@@ -126,10 +126,50 @@ Page({
         requestData.userInfo = userInfo
       }
 
+      console.log('发送微信登录请求，数据:', requestData)
       const apiRes = await post('/auth/wechat-login', requestData)
+      console.log('微信登录响应:', apiRes)
 
-      app.setToken(apiRes.sessionToken)
+      if (!apiRes || !apiRes.sessionToken) {
+        console.error('登录响应中没有 sessionToken:', apiRes)
+        wx.showToast({
+          title: '登录失败，响应无效',
+          icon: 'none'
+        })
+        this.setData({ wechatLoading: false })
+        return
+      }
+
+      console.log('设置 token:', apiRes.sessionToken.substring(0, 20) + '...')
+      const setTokenResult = app.setToken(apiRes.sessionToken)
+      console.log('设置 token 结果:', setTokenResult)
+
+      if (!setTokenResult) {
+        console.error('设置 token 失败')
+        wx.showToast({
+          title: '登录失败，无法保存会话',
+          icon: 'none'
+        })
+        this.setData({ wechatLoading: false })
+        return
+      }
+
       app.setUserInfo(apiRes.user)
+      console.log('用户信息已设置:', apiRes.user)
+
+      // 验证 token 是否保存成功
+      const savedToken = app.getToken()
+      console.log('验证保存的 token:', savedToken ? savedToken.substring(0, 20) + '...' : 'null')
+
+      if (!savedToken) {
+        console.error('Token 保存验证失败')
+        wx.showToast({
+          title: '登录失败，会话保存失败',
+          icon: 'none'
+        })
+        this.setData({ wechatLoading: false })
+        return
+      }
 
       wx.showToast({
         title: '登录成功',

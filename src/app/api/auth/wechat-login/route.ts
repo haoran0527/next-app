@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSession } from '@/lib/services/session-service'
 import { generateNickname } from '@/lib/services/agent-service'
+import { getRememberMeCookieOptions } from '@/lib/cookie-config'
 
 interface WeChatLoginRequest {
   code: string
@@ -124,14 +125,8 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
 
-    // 设置会话Cookie
-    const cookieOptions = {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'strict' as const,
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/note'
-    }
+    // 设置会话Cookie - 使用环境适配的配置（微信登录默认记住7天）
+    const cookieOptions = getRememberMeCookieOptions()
 
     response.cookies.set('session-token', session.token, cookieOptions)
 

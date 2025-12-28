@@ -25,9 +25,16 @@ function calculateExpirationTime(rememberMe: boolean = false): Date {
  */
 export async function createSession(userId: string, rememberMe: boolean = false): Promise<Session | null> {
   try {
+    console.log('=== 创建会话开始 ===')
+    console.log('用户ID:', userId)
+    console.log('记住我:', rememberMe)
+
     // 生成会话令牌
     const token = generateSessionToken()
     const expiresAt = calculateExpirationTime(rememberMe)
+
+    console.log('生成的token:', token.substring(0, 20) + '...')
+    console.log('过期时间:', expiresAt)
 
     // 创建会话记录
     const session = await prisma.session.create({
@@ -38,6 +45,9 @@ export async function createSession(userId: string, rememberMe: boolean = false)
       }
     })
 
+    console.log('✅ 会话创建成功，ID:', session.id)
+    console.log('=== 创建会话结束 ===')
+
     return {
       id: session.id,
       userId: session.userId,
@@ -46,7 +56,7 @@ export async function createSession(userId: string, rememberMe: boolean = false)
       createdAt: session.createdAt
     }
   } catch (error) {
-    console.error('创建会话失败:', error)
+    console.error('❌ 创建会话失败:', error)
     return null
   }
 }
@@ -56,6 +66,9 @@ export async function createSession(userId: string, rememberMe: boolean = false)
  */
 export async function validateSession(token: string): Promise<{ user: User; session: Session } | null> {
   try {
+    console.log('=== 验证会话 ===')
+    console.log('Token:', token.substring(0, 20) + '...')
+    
     // 查找会话并包含用户信息
     const sessionWithUser = await prisma.session.findUnique({
       where: { token },
@@ -63,11 +76,15 @@ export async function validateSession(token: string): Promise<{ user: User; sess
     })
 
     if (!sessionWithUser) {
+      console.log('会话未找到')
       return null
     }
 
+    console.log('找到会话，用户ID:', sessionWithUser.userId)
+    
     // 检查会话是否过期
     if (sessionWithUser.expiresAt < new Date()) {
+      console.log('会话已过期，过期时间:', sessionWithUser.expiresAt)
       // 删除过期会话
       await prisma.session.delete({
         where: { id: sessionWithUser.id }
@@ -77,7 +94,36 @@ export async function validateSession(token: string): Promise<{ user: User; sess
 
     // 检查用户是否被禁用
     if (!sessionWithUser.user.isActive) {
+      console.log('用户已被禁用')
       return null
+    }
+
+    console.log('用户状态正常，用户名:', sessionWithUser.user.username)
+
+    // 查找用户的家庭组信息（可选，失败不影响登录）
+    let familyGroup
+    try {
+      const familyMember = await prisma.familyMember.findFirst({
+        where: { userId: sessionWithUser.user.id },
+        include: {
+          group: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+
+      // 构建家庭组上下文
+      familyGroup = familyMember ? {
+        groupId: familyMember.groupId,
+        isMember: true,
+        role: familyMember.role as 'CREATOR' | 'MEMBER'
+      } : undefined
+    } catch (error) {
+      console.log('查询家庭组信息失败（不影响登录）:', error instanceof Error ? error.message : String(error))
+      // family组查询失败不影响登录，继续执行
     }
 
     const user: User = {
@@ -88,7 +134,8 @@ export async function validateSession(token: string): Promise<{ user: User; sess
       role: sessionWithUser.user.role as 'USER' | 'ADMIN',
       isActive: sessionWithUser.user.isActive,
       createdAt: sessionWithUser.user.createdAt,
-      updatedAt: sessionWithUser.user.updatedAt
+      updatedAt: sessionWithUser.user.updatedAt,
+      familyGroup
     }
 
     const session: Session = {
@@ -99,6 +146,7 @@ export async function validateSession(token: string): Promise<{ user: User; sess
       createdAt: sessionWithUser.createdAt
     }
 
+    console.log('会话验证成功')
     return { user, session }
   } catch (error) {
     console.error('验证会话失败:', error)

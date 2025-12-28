@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { signIn } from '@/lib/services/auth-service'
 import { LoginCredentials } from '@/lib/types/auth'
+import { getRememberMeCookieOptions, getSessionCookieOptions } from '@/lib/cookie-config'
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,14 +50,8 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
 
-    // 设置会话Cookie
-    const cookieOptions = {
-      httpOnly: true,
-      secure: false, // 暂时禁用，因为使用HTTP而非HTTPS
-      sameSite: 'strict' as const,
-      maxAge: rememberMe ? 7 * 24 * 60 * 60 : 24 * 60 * 60, // 7天或1天
-      path: '/note'
-    }
+    // 设置会话Cookie - 使用环境适配的配置
+    const cookieOptions = rememberMe ? getRememberMeCookieOptions() : getSessionCookieOptions()
 
     response.cookies.set('session-token', result.session!.token, cookieOptions)
 

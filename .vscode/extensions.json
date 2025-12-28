@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "wechatdevteam.vscode-wxml",
+    "wechatdevteam.vscode-wechat",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss"
+  ]
+}

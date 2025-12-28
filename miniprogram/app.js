@@ -69,12 +69,22 @@ App({
   },
 
   setToken(token) {
+    console.log('app.setToken 被调用，token:', token ? token.substring(0, 20) + '...' : 'null')
     this.globalData.token = token
-    wx.setStorageSync('token', token)
+    try {
+      wx.setStorageSync('token', token)
+      console.log('token 已保存到 storage')
+      return true
+    } catch (error) {
+      console.error('保存 token 到 storage 失败:', error)
+      return false
+    }
   },
 
   getToken() {
-    return this.globalData.token || wx.getStorageSync('token')
+    const token = this.globalData.token || wx.getStorageSync('token')
+    console.log('app.getToken 返回:', token ? token.substring(0, 20) + '...' : 'null')
+    return token
   },
 
   setUserInfo(userInfo) {
@@ -109,5 +119,28 @@ App({
       return false
     }
     return true
+  },
+
+  // 封装请求方法，供页面使用
+  request(options) {
+    const { request } = require('./utils/request.js')
+    return request(options)
+  },
+
+  // 便捷方法
+  get(url, data) {
+    return this.request({ url, method: 'GET', data })
+  },
+
+  post(url, data) {
+    return this.request({ url, method: 'POST', data })
+  },
+
+  put(url, data) {
+    return this.request({ url, method: 'PUT', data })
+  },
+
+  delete(url, data) {
+    return this.request({ url, method: 'DELETE', data })
   }
 })

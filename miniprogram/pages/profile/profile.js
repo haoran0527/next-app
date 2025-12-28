@@ -102,6 +102,12 @@ Page({
     })
   },
 
+  onFamilyGroup() {
+    wx.navigateTo({
+      url: '/pages/family/family'
+    })
+  },
+
   async saveNickname() {
     const nickname = this.data.editNickname.trim()
 

@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from '../types/auth'
 import { prisma } from '../prisma'
+import { getFamilyGroupMemberIds } from './family-group-service'
 
 /**
  * 数据访问控制服务
  * 实现严格的数据隔离，确保用户只能访问自己的数据
+ * 扩展支持家庭组数据共享
  */
 
 export interface DataAccessResult<T = any> {
@@ -14,7 +16,7 @@ export interface DataAccessResult<T = any> {
 }
 
 export interface QueryFilters {
-  userId?: string
+  userId?: string | string[]
   startDate?: Date
   endDate?: Date
   type?: string
@@ -73,11 +75,21 @@ export async function validateUserAccess(
 
 /**
  * 为查询添加用户过滤条件
+ * 支持家庭组数据访问：如果用户属于家庭组，可以查看组内所有成员数据
  */
-export function applyUserFilter(currentUser: User, baseFilters: QueryFilters = {}): QueryFilters {
+export async function applyUserFilter(currentUser: User, baseFilters: QueryFilters = {}): Promise<QueryFilters> {
   // 管理员可以查询所有数据（如果没有指定userId）
   if (currentUser.role === 'ADMIN' && !baseFilters.userId) {
     return baseFilters
+  }
+
+  // 如果用户属于家庭组，允许查看组内所有成员数据
+  if (currentUser.familyGroup?.groupId && currentUser.familyGroup.isMember) {
+    const memberIds = await getFamilyGroupMemberIds(currentUser.familyGroup.groupId)
+    return {
+      ...baseFilters,
+      userId: memberIds
+    }
   }
 
   // 普通用户或管理员指定了userId时，强制使用当前用户ID或指定的userId
@@ -175,11 +187,16 @@ export class SecureDataAccess {
    */
   async getTransactions(filters: QueryFilters = {}): Promise<DataAccessResult> {
     try {
-      // 应用用户过滤
-      const secureFilters = applyUserFilter(this.currentUser, filters)
-      
-      const whereClause: any = {
-        userId: secureFilters.userId
+      // 应用用户过滤（支持家庭组）
+      const secureFilters = await applyUserFilter(this.currentUser, filters)
+
+      const whereClause: any = {}
+
+      // 处理 userId 过滤（可能是单个ID或ID数组）
+      if (typeof secureFilters.userId === 'string') {
+        whereClause.userId = secureFilters.userId
+      } else if (Array.isArray(secureFilters.userId)) {
+        whereClause.userId = { in: secureFilters.userId }
       }
 
       // 添加其他过滤条件

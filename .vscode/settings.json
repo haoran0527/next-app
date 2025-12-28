@@ -1,2 +1,28 @@
 {
+  "files.associations": {
+    "*.wxml": "xml",
+    "*.wxss": "css",
+    "*.wxs": "javascript",
+    "*.json": "jsonc"
+  },
+  "emmet.includeLanguages": {
+    "wxml": "html"
+  },
+  "minapp-vscode.disableAutoConfig": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[wxml]": {
+    "editor.defaultFormatter": "wechatdevteam.vscode-wxml"
+  },
+  "[wxss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "tailwindCSS.includeLanguages": {
+    "wxml": "html",
+    "wxss": "css"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["class=\"([^\"]*)\"", "\"([^\"]*)\""],
+    ["class='([^']*)'", "'([^']*)'"]
+  ]
 }

@@ -45,7 +45,25 @@
       "Bash(ssh:*)",
       "Bash(bash:*)",
       "Bash(cmd:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(npm install:*)",
+      "Bash(openspec:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx cross-env TURBOPACK=0 npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(npm run dev)",
+      "mcp__chrome-devtools__evaluate_script",
+      "Bash(taskkill:*)",
+      "mcp__chrome-devtools__handle_dialog",
+      "mcp__chrome-devtools__press_key",
+      "Bash(echo:*)",
+      "Bash(curl:*)",
+      "Bash(./deploy.bat)",
+      "Bash(git add:*)"
     ]
   }
 }
