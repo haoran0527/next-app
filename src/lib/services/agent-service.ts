@@ -168,7 +168,9 @@ export async function generateNickname(): Promise<string> {
           }
         ],
         temperature: 0.8,
-        max_tokens: 50
+        max_tokens: 50,
+        // 禁用深度思考（GLM-4）
+        thinking: { type: "disabled" }
       })
     })
 
@@ -190,9 +192,9 @@ export async function generateNickname(): Promise<string> {
     }
 
     const data = await response.json()
-    // 处理智谱AI的reasoning_content字段
+    // 只使用content，忽略reasoning_content以提升性能
     const message = data.choices[0].message
-    const nickname = (message.content || message.reasoning_content || '').trim()
+    const nickname = (message.content || '').trim()
 
     // 验证昵称长度
     if (nickname.length >= 4 && nickname.length <= 7) {
@@ -248,7 +250,9 @@ async function callOpenAI(prompt: string): Promise<string> {
         }
       ],
       temperature: 0.1,
-      max_tokens: 1500
+      max_tokens: 1500,
+      // 禁用深度思考（GLM-4）
+      thinking: { type: "disabled" }
     })
   })
 
@@ -267,23 +271,18 @@ async function callOpenAI(prompt: string): Promise<string> {
   }
 
   const data = await response.json()
-  
+
   const message = data.choices[0].message
   let content = message.content || ''
 
+  // 忽略深度思考内容（reasoning_content），只使用最终答案
+  // 如果需要提升性能，请确保使用的是非推理模型（如 deepseek-chat 而不是 deepseek-reasoner）
+
   console.log('AI返回的content:', content)
-  console.log('AI返回的reasoning_content:', message.reasoning_content || '无')
 
   if (!content || content.trim() === '') {
-    if (message.reasoning_content) {
-      console.log('content为空，尝试从reasoning_content提取JSON')
-      content = extractJSONFromText(message.reasoning_content)
-    }
-  }
-
-  if (!content || content.trim() === '') {
-    console.error('AI返回空内容')
-    throw new Error('AI返回空内容，请尝试切换到其他AI模型或增加max_tokens')
+    console.error('AI返回空内容，建议切换到非推理模型（如 deepseek-chat）以提升性能')
+    throw new Error('AI返回空内容，请尝试切换到其他AI模型')
   }
 
   console.log('最终提取的content:', content)
@@ -469,7 +468,9 @@ export async function getTransactionSuggestions(
           }
         ],
         temperature: 0.7,
-        max_tokens: 300
+        max_tokens: 300,
+        // 禁用深度思考（GLM-4）
+        thinking: { type: "disabled" }
       })
     })
 
@@ -478,9 +479,9 @@ export async function getTransactionSuggestions(
     }
 
     const data = await response.json()
-    // 处理智谱AI的reasoning_content字段
+    // 只使用content，忽略reasoning_content以提升性能
     const message = data.choices[0].message
-    const content = message.content || message.reasoning_content || ''
+    const content = message.content || ''
     return content.split('\n').filter((line: string) => line.trim()).slice(0, 5)
   } catch (error) {
     console.error('获取建议失败:', error)
