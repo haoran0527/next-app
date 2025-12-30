@@ -170,7 +170,8 @@ export async function transcribeAudioFile(
         )
       }
 
-      if (error.code === 'ENOENT') {
+      const nodeError = error as NodeJS.ErrnoException
+      if (nodeError.code === 'ENOENT') {
         throw new ASRServiceError(
           'FILE_NOT_FOUND',
           '音频文件不存在',
