@@ -32,24 +32,50 @@ fi
 # 解压新的代码
 echo "步骤 3/5: 解压代码..."
 cd /root
-tar -xzf "$ARCHIVE_NAME" -C "$SERVER_DIR" --overwrite
+
+# 备份当前代码目录
+if [ -d "$SERVER_DIR" ]; then
+    mv "$SERVER_DIR" "${SERVER_DIR}.backup.$(date +%Y%m%d_%H%M%S)"
+fi
+
+# 创建新的代码目录
+mkdir -p "$SERVER_DIR"
+
+# 解压到新目录
+tar -xzf "$ARCHIVE_NAME" -C "$SERVER_DIR"
 
 if [ $? -ne 0 ]; then
     echo "错误: 解压失败"
+    # 尝试恢复备份
+    if [ -d "${SERVER_DIR}.backup."* ]; then
+        mv "${SERVER_DIR}.backup."* "$SERVER_DIR"
+    fi
     exit 1
 fi
 
 echo "解压成功"
 
 # 恢复 .env 文件
-echo "步骤 4/5: 恢复配置文件..."
+echo "步骤 4/6: 恢复配置文件..."
 if [ -f "/tmp/.env.backup" ]; then
     cp "/tmp/.env.backup" "$SERVER_DIR/.env"
     echo ".env 文件已恢复"
 fi
 
+# 安装依赖
+echo "步骤 5/6: 安装依赖..."
+cd "$SERVER_DIR"
+npm install
+
+if [ $? -ne 0 ]; then
+    echo "错误: 依赖安装失败"
+    exit 1
+fi
+
+echo "依赖安装成功"
+
 # 执行数据库迁移
-echo "步骤 5/6: 执行数据库迁移..."
+echo "步骤 6/7: 执行数据库迁移..."
 cd "$SERVER_DIR"
 npx prisma migrate deploy
 
@@ -58,7 +84,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # 重新生成 Prisma Client
-echo "重新生成 Prisma Client..."
+echo "步骤 7/8: 重新生成 Prisma Client..."
 cd "$SERVER_DIR"
 npx prisma generate
 
@@ -67,8 +93,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Prisma Client 生成成功"
+
 # 重新构建项目
-echo "步骤 6/6: 重新构建项目..."
+echo "步骤 8/8: 重新构建项目..."
 cd "$SERVER_DIR"
 npm run build
 
