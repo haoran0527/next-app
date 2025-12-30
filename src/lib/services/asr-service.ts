@@ -223,17 +223,21 @@ export class ASRServiceError extends Error implements ASRError {
 /**
  * 将ASRServiceError转换为用户友好的错误响应
  */
-export function asrErrorToResponse(error: ASRServiceError): {
+export function asrErrorToResponse(
+  error: ASRServiceError
+): {
   success: false
   error: string
   code?: string
   timeout?: boolean
+  stage?: string
 } {
   const response: {
     success: false
     error: string
     code?: string
     timeout?: boolean
+    stage?: string
   } = {
     success: false,
     error: error.message,
