@@ -29,6 +29,8 @@ This is an **accounting application** (智能记账系统) built with Next.js 16
 - User authentication with session-based auth (supports email or username login)
 - Transaction management (income/expense tracking with categories)
 - AI agent for parsing natural language into transaction records (e.g., "今天花了50元买午饭")
+- **Voice recognition for smart accounting** (WeChat miniprogram only) - Record voice, transcribe with Qwen ASR, parse with AI
+- Family groups for shared transaction tracking
 - Admin panel for user management, audit logs, and system stats
 - Data export functionality
 - Multi-user data isolation and RBAC (USER/ADMIN roles)
@@ -102,6 +104,7 @@ src/
 │   │   ├── session-service.ts    # Session validation
 │   │   ├── transaction-service.ts
 │   │   ├── agent-service.ts      # AI natural language parsing
+│   │   ├── asr-service.ts        # Qwen ASR voice transcription
 │   │   ├── admin-service.ts      # Admin operations
 │   │   ├── data-access-control.ts # Data isolation wrapper
 │   │   └── export-service.ts     # Data export
@@ -159,6 +162,28 @@ Located in `src/lib/services/agent-service.ts`:
 - Parses natural language into structured transactions
 - Valid categories defined in `INCOME_CATEGORIES` and `EXPENSE_CATEGORIES`
 
+### Voice Recognition (WeChat Miniprogram Only)
+
+**Backend Services**:
+- `src/lib/services/asr-service.ts` - Qwen ASR (qwen3-asr-flash-filetrans) integration
+- `src/app/api/voice/upload/route.ts` - Temporary file upload endpoint
+- `src/app/api/voice/asr/route.ts` - ASR transcription endpoint
+- `src/app/api/voice/parse-transaction/route.ts` - Combined voice → text → transaction endpoint
+- `src/lib/utils/file-utils.ts` - File management utilities (temp file cleanup)
+
+**Miniprogram Implementation**:
+- `miniprogram/pages/add/add.js` - Recording logic using `wx.getRecorderManager()`
+- `miniprogram/pages/add/add.wxml` - Voice button and UI animations
+- `miniprogram/pages/add/add.wxss` - Recording animations and styling
+- Long-press microphone button to record (30s max, MP3 format)
+- Voice → ASR → AI parsing → Transaction card
+
+**Environment Variables** (in `.env`):
+```
+QWEN_ASR_API_KEY=your_qwen_asr_api_key
+QWEN_ASR_FILE_TRANS_URL=https://dashscope.aliyuncs.com/api/v1/services/audio/asr/transcription
+```
+
 ### Multi-tenancy & Data Isolation
 
 **Critical**: All database queries must respect user boundaries:
@@ -179,6 +204,8 @@ Required in `.env`:
 POSTGRES_PASSWORD=your_password
 OPENAI_API_KEY=your_deepseek_api_key
 OPENAI_BASE_URL=https://api.deepseek.com  # optional
+QWEN_ASR_API_KEY=your_qwen_asr_api_key  # for voice recognition
+QWEN_ASR_FILE_TRANS_URL=https://dashscope.aliyuncs.com/api/v1/services/audio/asr/transcription
 ```
 
 ## Important Notes

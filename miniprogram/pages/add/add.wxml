@@ -4,28 +4,59 @@
       <view class="card-header">
         <view class="header-text">
           <text class="section-title">✨ AI智能记账</text>
-          <text class="section-subtitle">用自然语言描述，自动识别金额、分类</text>
+          <text class="section-subtitle">说话或打字，自动识别金额、分类</text>
         </view>
-        <button 
-          class="btn-parse {{inputText ? 'active' : ''}}" 
-          bindtap="onParse" 
-          loading="{{parsing}}"
-          disabled="{{parsing || !inputText}}"
-        >
-          <text class="btn-icon">{{parsing ? '⏳' : '🤖'}}</text>
-          <text class="btn-text">{{parsing ? '解析中...' : 'AI解析'}}</text>
-        </button>
+        <view class="header-actions">
+          <view
+            class="btn-voice {{recording || recorderStarting ? 'recording' : ''}} {{voiceProcessing ? 'disabled' : ''}}"
+            bindtouchstart="startRecording"
+            bindtouchend="stopRecording"
+            hover-class="btn-voice-hover"
+          >
+            <text class="btn-icon">🎤</text>
+          </view>
+          <button
+            class="btn-parse {{inputText ? 'active' : ''}}"
+            bindtap="onParse"
+            loading="{{parsing}}"
+            disabled="{{parsing || voiceProcessing || !inputText}}"
+          >
+            <text class="btn-icon">{{parsing ? '⏳' : '🤖'}}</text>
+            <text class="btn-text">{{parsing ? '解析中...' : 'AI解析'}}</text>
+          </button>
+        </view>
       </view>
-      
+
+      <!-- 录音动画 -->
+      <view wx:if="{{recording}}" class="recording-animation">
+        <view class="recording-pulse"></view>
+        <view class="recording-pulse delay-1"></view>
+        <view class="recording-pulse delay-2"></view>
+        <text class="recording-text">正在录音...</text>
+      </view>
+
+      <!-- 处理中状态 -->
+      <view wx:if="{{voiceProcessing}}" class="voice-processing">
+        <text class="processing-text">识别中...</text>
+      </view>
+
       <view class="input-wrapper">
-        <textarea 
-          class="ai-input" 
+        <textarea
+          class="ai-input"
           placeholder="例如：今天花了25元买午饭"
           value="{{inputText}}"
           bindinput="onInputChange"
           maxlength="200"
         />
         <text class="char-count">{{inputText.length}}/200</text>
+      </view>
+
+      <!-- 识别失败重试按钮 -->
+      <view wx:if="{{voiceError && asrText}}" class="voice-error">
+        <text class="error-text">已识别：{{asrText}}</text>
+        <button class="btn-retry" bindtap="retryVoiceRecognition">
+          <text>重试解析</text>
+        </button>
       </view>
     </view>
   </view>

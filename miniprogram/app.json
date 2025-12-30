@@ -11,6 +11,11 @@
     "pages/profile/profile",
     "pages/admin/ai-models/ai-models"
   ],
+  "permission": {
+    "scope.record": {
+      "desc": "需要使用您的麦克风进行语音记账"
+    }
+  },
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#1890ff",

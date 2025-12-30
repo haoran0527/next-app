@@ -23,6 +23,12 @@ export interface QueryFilters {
   category?: string
   limit?: number
   offset?: number
+  /**
+   * 数据作用域：
+   * - 'personal': 只查询个人数据（默认）
+   * - 'family': 查询家庭组数据（如果用户属于家庭组）
+   */
+  scope?: 'personal' | 'family'
 }
 
 /**
@@ -75,16 +81,18 @@ export async function validateUserAccess(
 
 /**
  * 为查询添加用户过滤条件
- * 支持家庭组数据访问：如果用户属于家庭组，可以查看组内所有成员数据
+ * 默认只返回个人数据，只有明确指定 scope='family' 时才返回家庭组数据
  */
 export async function applyUserFilter(currentUser: User, baseFilters: QueryFilters = {}): Promise<QueryFilters> {
+  const scope = baseFilters.scope || 'personal'
+
   // 管理员可以查询所有数据（如果没有指定userId）
   if (currentUser.role === 'ADMIN' && !baseFilters.userId) {
     return baseFilters
   }
 
-  // 如果用户属于家庭组，允许查看组内所有成员数据
-  if (currentUser.familyGroup?.groupId && currentUser.familyGroup.isMember) {
+  // 只有明确指定 scope='family' 且用户属于家庭组时，才返回家庭组数据
+  if (scope === 'family' && currentUser.familyGroup?.groupId && currentUser.familyGroup.isMember) {
     const memberIds = await getFamilyGroupMemberIds(currentUser.familyGroup.groupId)
     return {
       ...baseFilters,
@@ -92,7 +100,7 @@ export async function applyUserFilter(currentUser: User, baseFilters: QueryFilte
     }
   }
 
-  // 普通用户或管理员指定了userId时，强制使用当前用户ID或指定的userId
+  // 默认情况：只返回当前用户的个人数据
   return {
     ...baseFilters,
     userId: currentUser.role === 'ADMIN' ? (baseFilters.userId || currentUser.id) : currentUser.id
