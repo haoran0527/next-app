@@ -63,7 +63,9 @@
       "Bash(echo:*)",
       "Bash(curl:*)",
       "Bash(./deploy.bat)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
