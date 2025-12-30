@@ -65,7 +65,17 @@
       "Bash(./deploy.bat)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(git archive:*)",
+      "mcp__ssh-tool__ssh_closeSession",
+      "Bash(test:*)",
+      "Bash(for i in 1 2 3 4 5)",
+      "Bash(do echo \"Attempt $i:\")",
+      "Bash(break:*)",
+      "Bash(done)",
+      "Bash(tee:*)",
+      "Bash(deploy.bat:*)"
     ]
   }
 }
