@@ -192,7 +192,7 @@ export async function transcribeAudioFile(
 /**
  * ASR服务错误类
  */
-class ASRServiceError extends Error implements ASRError {
+export class ASRServiceError extends Error implements ASRError {
   code: string
   statusCode?: number
   details?: Record<string, unknown>
