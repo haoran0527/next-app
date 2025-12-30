@@ -28,14 +28,16 @@
 
   <!-- 已加入家庭组 -->
   <view wx:else class="has-family">
+    <!-- 更多操作按钮 -->
+    <view class="btn-more" bindtap="showActions">···</view>
+
     <!-- 家庭组信息 -->
     <view class="family-info">
       <view class="info-header">
-        <view>
+        <view class="family-name-wrap">
           <text class="family-name">{{familyGroup.name}}</text>
-          <text class="family-date">创建于 {{familyGroup.createdAt}}</text>
+          <text class="member-count-badge">{{familyGroup.members.length}}位成员</text>
         </view>
-        <button class="btn-more" bindtap="showActions">•••</button>
       </view>
 
       <view class="invite-section">
@@ -47,11 +49,6 @@
           </button>
         </view>
         <view class="invite-desc">分享此邀请码给家庭成员</view>
-      </view>
-
-      <view class="member-count">
-        <text class="count-number">{{familyGroup.members.length}}</text>
-        <text class="count-label">位成员</text>
       </view>
     </view>
 
@@ -104,16 +101,35 @@
         <view class="member-stats-title">成员统计</view>
         <view class="member-stats-list">
           <view class="member-stat-item" wx:for="{{stats.memberStats}}" wx:key="userId">
-            <view class="member-info">
-              <text class="member-name">{{item.nickname || item.username}}</text>
-              <text class="crown" wx:if="{{item.userId === familyGroup.creatorId}}">👑</text>
+            <view class="member-main">
+              <view class="member-avatar-small">
+                {{item.nickname ? item.nickname[0] : item.username[0]}}
+              </view>
+              <view class="member-detail-info">
+                <view class="member-name-row">
+                  <text class="member-stat-name">{{item.nickname || item.username}}</text>
+                  <text class="crown" wx:if="{{item.userId === familyGroup.creatorId}}">👑</text>
+                </view>
+                <view class="member-transactions">
+                  <text class="trans-count">{{item.transactionCount}}笔</text>
+                </view>
+              </view>
             </view>
-            <view class="member-values">
-              <text class="value-income">¥{{item.totalIncome}}</text>
-              <text class="value-expense">¥{{item.totalExpense}}</text>
-              <text class="value-balance {{item.balance >= 0 ? 'positive' : 'negative'}}">
-                ¥{{item.balance}}
-              </text>
+            <view class="member-amounts">
+              <view class="amount-row">
+                <text class="amount-label">收入</text>
+                <text class="amount-value income">¥{{item.totalIncome}}</text>
+              </view>
+              <view class="amount-row">
+                <text class="amount-label">支出</text>
+                <text class="amount-value expense">¥{{item.totalExpense}}</text>
+              </view>
+              <view class="amount-row total">
+                <text class="amount-label">余额</text>
+                <text class="amount-value {{item.balance >= 0 ? 'positive' : 'negative'}}">
+                  ¥{{item.balance}}
+                </text>
+              </view>
             </view>
           </view>
         </view>
